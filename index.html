@@ -2,15 +2,15 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0" />
   <title>SUSS 光刻机配置器 · MJB4 / MA6 / MA8 / MA12</title>
   <meta name="description" content="SUSS MicroTec MJB4、MA/BA6 Gen4、MA/BA8 Gen4 与 MA12 Gen3 掩模/键合对准机配置工具" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=20261108-header13" />
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="brand-mark">SUSS</div>
+      <img class="brand-logo" src="images/Company.png" alt="公司 Logo" />
       <div class="brand-text">
         <h1>掩模 / 键合对准机配置器</h1>
         <p>Mask &amp; Bond Aligner Configurator — MJB4 · MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3</p>
@@ -22,16 +22,6 @@
       <label>日期 <input type="date" id="quote-date" /></label>
     </div>
   </header>
-
-  <nav class="toolbar">
-    <button class="btn" id="btn-import" title="导入配置 (JSON)">导入 Import</button>
-    <button class="btn" id="btn-reset" title="清空所有选择">重置 Reset All</button>
-    <button class="btn" id="btn-export" title="导出配置 (JSON)">导出 Export</button>
-    <button class="btn" id="btn-toggle-notes" title="显示 / 隐藏说明">显示 / 隐藏说明</button>
-    <button class="btn btn-primary" id="btn-spec" title="生成规格书 (打印)">生成规格书</button>
-    <button class="btn btn-primary" id="btn-quote" title="生成报价单摘要">生成报价单</button>
-    <input type="file" id="import-file" accept="application/json" hidden />
-  </nav>
 
   <main class="layout">
     <section class="config-panel">
@@ -54,19 +44,19 @@
         </div>
         <div class="gallery-grid">
           <figure class="gallery-item">
-            <img src="images/mjb4.jpg" alt="MJB4" loading="lazy" />
+            <img src="images/MJB4.png" alt="MJB4" loading="lazy" />
             <figcaption>MJB4 · 4″ 手动掩模对准</figcaption>
           </figure>
           <figure class="gallery-item">
-            <img src="images/maba-gen4.jpg" alt="MA/BA6 Gen4" loading="lazy" />
+            <img src="images/MA68Gen4.png" alt="MA/BA6 Gen4" loading="lazy" />
             <figcaption>MA/BA6 Gen4 · 6″ 掩模 / 键合对准</figcaption>
           </figure>
           <figure class="gallery-item">
-            <img src="images/maba-gen4.jpg" alt="MA/BA8 Gen4" loading="lazy" />
+            <img src="images/MA68Gen4.png" alt="MA/BA8 Gen4" loading="lazy" />
             <figcaption>MA/BA8 Gen4 · 8″ 掩模 / 键合对准</figcaption>
           </figure>
           <figure class="gallery-item">
-            <img src="images/ma12.jpg" alt="MA12 Gen3" loading="lazy" />
+            <img src="images/MA12.png" alt="MA12 Gen3" loading="lazy" />
             <figcaption>MA12 Gen3 · 12″ 掩模对准</figcaption>
           </figure>
         </div>
@@ -92,22 +82,29 @@
     </section>
 
     <aside class="summary">
+      <div class="summary-toolbar">
+        <button class="btn" id="btn-import" title="导入配置 (JSON)">导入 Import</button>
+        <button class="btn" id="btn-reset" title="清空所有设置">重置 Reset All</button>
+        <input type="file" id="import-file" accept="application/json" hidden />
+      </div>
       <div class="summary-head">
         <h2>已选配置</h2>
         <span id="summary-count" class="badge">0</span>
+      </div>
+      <div class="summary-actions">
+        <button class="btn" id="btn-print">打印为 PDF</button>
+        <button class="btn" id="btn-save-json">保存为 JSON</button>
       </div>
       <div id="summary-list" class="summary-list">
         <p class="summary-empty">尚未选择任何配置项</p>
       </div>
       <div class="summary-foot">
         <div id="summary-customer" class="summary-meta"></div>
-        <button class="btn btn-block" id="btn-print">打印 / 保存为 PDF</button>
       </div>
     </aside>
   </main>
 
   <footer class="footer">
-    <p>本配置器仅供项目内部选型与报价参考，非 SUSS 官方工具。</p>
     <p>
       产品信息来源：
       <a href="https://www.suss.com/en/products-solutions/mask-aligner/ma-ba-gen4-series" target="_blank" rel="noopener">MA/BA Gen4 Series — SUSS MicroTec</a>
@@ -116,6 +113,6 @@
     </p>
   </footer>
 
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=20261108-uv21"></script>
 </body>
 </html>

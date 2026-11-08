@@ -6,10 +6,10 @@
  * ========================================================================= */
 
 const MODELS = [
-  { id: "mjb4", name: "MJB4", en: "Mask Aligner", automation: "Manual", wafer: '4"', tag: "手动", img: "images/mjb4.jpg" },
-  { id: "maba6", name: "MA/BA6 Gen4", en: "Mask & Bond Aligner", automation: "Semi-Automated", wafer: '6"', tag: "标准 · 半自动", img: "images/maba-gen4.jpg" },
-  { id: "maba8", name: "MA/BA8 Gen4", en: "Mask & Bond Aligner", automation: "Semi-Automated", wafer: '8"', tag: "标准 · 半自动", img: "images/maba-gen4.jpg" },
-  { id: "ma12", name: "MA12 Gen3", en: "Mask Aligner", automation: "Semi-Automated", wafer: '12"', tag: "200 / 300 mm · 半自动", img: "images/ma12.jpg" },
+  { id: "mjb4", name: "MJB4", en: "Mask Aligner", automation: "Manual", wafer: '4"', tag: "手动", img: "images/MJB4.png" },
+  { id: "maba6", name: "MA/BA6 Gen4", en: "Mask & Bond Aligner", automation: "Semi-Automated", wafer: '6"', tag: "标准 · 半自动", img: "images/MA68Gen4.png" },
+  { id: "maba8", name: "MA/BA8 Gen4", en: "Mask & Bond Aligner", automation: "Semi-Automated", wafer: '8"', tag: "标准 · 半自动", img: "images/MA68Gen4.png" },
+  { id: "ma12", name: "MA12 Gen3", en: "Mask Aligner", automation: "Semi-Automated", wafer: '12"', tag: "200 / 300 mm · 半自动", img: "images/MA12.png" },
 ];
 
 const SECTIONS = [
@@ -17,7 +17,6 @@ const SECTIONS = [
     id: "exposure_area", zh: "曝光范围", en: "Exposure Area", type: "radio",
     options: [
       { id: "4round", zh: "4英寸圆形", en: '4" Round', models: ["mjb4"] },
-      { id: "4sq", zh: "4英寸方形", en: '4" Squared', models: ["mjb4"] },
       { id: "6round", zh: "6英寸圆形", en: '6" Round', models: ["maba6"] },
       { id: "6sq", zh: "6英寸方形", en: '6" Squared', models: ["maba6"] },
       { id: "8round", zh: "8英寸圆形", en: '8" Round', models: ["maba8"] },
@@ -33,13 +32,12 @@ const SECTIONS = [
       "b. BSA 采用背面光学显微镜成像，IR 通过透射式红外成像；一般 BSA 比 IR 兼容性更强，成像不受衬底材料组成影响。仅做背面对位建议选 BSA。<br/>" +
       "c. 若对准标记从上方和下方都无法观察到，可增配 IR 模块。",
     options: [
-      { id: "tsa", zh: "TSA（仅正面）", en: "Top Side Alignment" },
-      { id: "tsa_bsa", zh: "TSA + BSA（正面 + 背面）", en: "Top + Bottom Side Alignment" },
-      { id: "bsa", zh: "BSA（仅背面）", en: "Bottom Side Alignment" },
-      { id: "tsa_bsa_ir", zh: "TSA + BSA + IR", en: "Top + Bottom + Infrared Alignment" },
-      { id: "ir_tsa", zh: "IR Visualization via TSA（红外背面光源，正面观察）", en: "Infrared Alignment via TSA" },
-      { id: "ir_bsa", zh: "IR Visualization via BSA（红外正面光源，背面观察）", en: "Infrared Alignment via BSA" },
-      { id: "none", zh: "No Alignment（不做对准）", en: "No Alignment" },
+      { id: "tsa", zh: "TSA（仅正面）", en: "Top Side Alignment", imgs: ["images/TSA.png"] },
+      { id: "tsa_bsa", zh: "TSA + BSA（正面 + 背面）", en: "Top + Bottom Side Alignment", imgs: ["images/TSA.png", "images/BSA.png"], models: ["maba6", "maba8", "ma12"] },
+      { id: "bsa", zh: "BSA（仅背面）", en: "Bottom Side Alignment", imgs: ["images/BSA.png"], models: ["maba6", "maba8", "ma12"] },
+      { id: "ir_tsa", zh: "TSA + BSA + IR Visualization via TSA（正面 + 背面 + 红外背面光源，正面观察）", en: "TSA + BSA + IR Visualization via TSA", imgs: ["images/IR.png"], models: ["maba6", "maba8", "ma12"] },
+      { id: "ir_bsa", zh: "TSA + BSA + IR Visualization via BSA（正面 + 背面 + 红外正面光源，背面观察）", en: "TSA + BSA + IR Visualization via BSA", imgs: ["images/IR.png"], models: ["maba6", "maba8", "ma12"] },
+      { id: "none", zh: "No Alignment（不做对准）", en: "No Alignment", models: ["maba6", "maba8", "ma12"] },
     ],
   },
   {
@@ -56,18 +54,41 @@ const SECTIONS = [
     ],
   },
   {
-    id: "light_source", zh: "曝光光源", en: "UV Light Source", type: "radio",
+    id: "light_source", zh: "高压汞灯光源", en: "UV Light Source", type: "radio",
     notes:
       "a. LED 灯非曝光时关闭，约 5000 h 后光强衰减至 70%，期望寿命 20000 h。<br/>" +
       "b. 高压汞灯非曝光时也需开启，开机寿命约 600 h。<br/>" +
       "c. LED 将取代汞灯成为主流，SUSS 提供汞灯转 LED 技术支持。",
     options: [
       { id: "led", zh: "LED", en: "LED Light Source" },
-      { id: "hg", zh: "HG 高压汞灯", en: "High-pressure Mercury Lamp" },
+      { id: "hg", zh: "HG 高压汞灯", en: "High-pressure Mercury Lamp", disabledModels: ["mjb4"] },
     ],
   },
   {
-    id: "exposure_mode", zh: "曝光控制模式", en: "Exposure Dosage Control Mode", type: "radio",
+    id: "uv_spectrum", zh: "高压汞灯紫外波长范围", en: "UV Spectrum", type: "radio",
+    visible: (sel) => sel.light_source === "hg",
+    options: [
+      { id: "uv400", zh: "UV400", en: "UV400" },
+      { id: "uv400_uv300", zh: "UV400 + UV300", en: "UV400 + UV300" },
+    ],
+  },
+  {
+    id: "filter", zh: "滤镜", en: "Filter", type: "radio",
+    visible: (sel) => sel.light_source === "hg",
+    options: [
+      { id: "i_line", zh: "i-Line Filter", en: "i-Line Filter" },
+      { id: "g_line", zh: "g-Line Filter", en: "g-Line Filter" },
+      { id: "h_line", zh: "h-Line Filter", en: "h-Line Filter" },
+      { id: "gh_line", zh: "gh-Line Filter", en: "gh-Line Filter" },
+      { id: "t25", zh: "25% Transmission Filter", en: "25% Transmission Filter" },
+      { id: "t33", zh: "33% Transmission Filter", en: "33% Transmission Filter" },
+      { id: "t50", zh: "50% Transmission Filter", en: "50% Transmission Filter" },
+      { id: "t70", zh: "70% Transmission Filter", en: "70% Transmission Filter" },
+    ],
+  },
+  {
+    id: "exposure_mode", zh: "曝光能量控制", en: "Exposure Dosage Control Mode", type: "radio",
+    visible: () => state.model !== "mjb4",
     notes:
       "CPC 即恒定功率模式，通过曝光时间控制曝光量；CDC 即恒定剂量模式，可直接输入剂量，使用更方便。CDC 包含 CPC 功能。建议研发单位仅配置 CPC 模式。",
     options: [
@@ -76,7 +97,8 @@ const SECTIONS = [
     ],
   },
   {
-    id: "auto_alignment", zh: "自动对准", en: "Automatic Alignment", type: "radio",
+    id: "auto_alignment", zh: "对准自动化", en: "Automatic Alignment", type: "radio",
+    visible: () => state.model !== "mjb4",
     notes:
       "MA6 / MA8 可配自动对位 Auto Alignment（对位精度 ±0.5 µm for TSA），或超高精度 Direct Alignment（对位精度 ±0.25 µm）。",
     options: [
@@ -91,9 +113,9 @@ const SECTIONS = [
       { id: "intensity_meter", zh: "原装光强计", en: "Intensity Meter" },
       { id: "vacuum_pump", zh: "厂务真空泵", en: "Facility Vacuum Pump" },
       { id: "sector_disk", zh: "分区曝光板", en: "Sector Exposure Disk" },
-      { id: "filter_cda", zh: "压缩空气滤芯", en: "Filter Unit CDA" },
-      { id: "cassette_tray", zh: "片盒托盘", en: "Cassette Tray" },
-      { id: "tool_tray", zh: "工装夹具收纳托盘", en: "Tool Tray" },
+      { id: "filter_cda", zh: "压缩空气滤芯", en: "Filter Unit CDA", models: ["maba6", "maba8", "ma12"] },
+      { id: "cassette_tray", zh: "片盒托盘", en: "Cassette Tray", models: ["maba6", "maba8", "ma12"] },
+      { id: "tool_tray", zh: "工装夹具收纳托盘", en: "Tool Tray", models: ["maba6", "maba8", "ma12"] },
     ],
   },
 ];
@@ -102,11 +124,63 @@ const CHUCK_OPTIONS = [
   { id: "vac_contact", zh: "支持真空接触", en: "Vacuum Contact" },
   { id: "bsa", zh: "支持背面对准", en: "BSA (Backside Alignment)" },
   { id: "teflon", zh: "支持抗反射涂层", en: "Teflon / Anti-reflection Coating" },
-  { id: "pre_align", zh: "预对位顶针", en: "Pre-alignment Pins" },
-  { id: "no_special", zh: "无特殊要求", en: "No Special Requirement" },
 ];
 
-const CHUCK_WAFER_SIZES = ['2"', '3"', '4"', '6"', '8"'];
+const NON_STANDARD_CHUCK_MA = [
+  { id: "ma-1", sizes: '5×5/10×10/20×20 mm', bsa: false, vacuum: false, teflon: false },
+  { id: "ma-2", sizes: '5×5/10×10/20×20/Wafer-2"/3"', bsa: true, vacuum: true, teflon: false },
+  { id: "ma-3", sizes: '5×5/10×10/20×20 mm', bsa: true, vacuum: true, teflon: false },
+  { id: "ma-4", sizes: '5×5/10×10/40×40 mm', bsa: false, vacuum: true, teflon: false },
+  { id: "ma-5", sizes: '5×5/12×12/20×20 mm', bsa: false, vacuum: false, teflon: true },
+  { id: "ma-6", sizes: '5×5/20×20/25×25 mm', bsa: false, vacuum: true, teflon: true },
+  { id: "ma-7", sizes: '10×10/15×15/20×20 mm', bsa: true, vacuum: true, teflon: false },
+  { id: "ma-8", sizes: '10×10/20×20/30×30 mm', bsa: false, vacuum: true, teflon: true },
+  { id: "ma-9", sizes: '10×10/20×20/30×30 mm', bsa: true, vacuum: true, teflon: false },
+  { id: "ma-10", sizes: '10×10/20×20/30×30 mm', bsa: false, vacuum: false, teflon: false },
+  { id: "ma-11", sizes: '10×10/20×20/30×30 mm', bsa: false, vacuum: true, teflon: false },
+  { id: "ma-12", sizes: '10×10/25×25/Wafer-2"', bsa: false, vacuum: true, teflon: false },
+  { id: "ma-13", sizes: '15×15/25×25 mm', bsa: false, vacuum: true, teflon: true },
+  { id: "ma-14", sizes: '15×15/30×30 mm', bsa: true, vacuum: true, teflon: false },
+  { id: "ma-15", sizes: '15×15/30×30 mm', bsa: false, vacuum: false, teflon: false },
+  { id: "ma-16", sizes: '20×20/25×25/30×30 mm', bsa: false, vacuum: false, teflon: true },
+  { id: "ma-17", sizes: '20×20/30×30/40×40 mm', bsa: true, vacuum: false, teflon: false },
+];
+
+const NON_STANDARD_CHUCK_MJB4 = [
+  { id: "mjb4-1", sizes: '5×5/10×10 mm', bsa: false, vacuum: true, teflon: false },
+  { id: "mjb4-2", sizes: '5×5/10×10 mm', bsa: false, vacuum: true, teflon: true },
+  { id: "mjb4-3", sizes: '10×10/20×20 mm', bsa: false, vacuum: true, teflon: false },
+  { id: "mjb4-4", sizes: '10×10/20×20 mm', bsa: false, vacuum: true, teflon: true },
+  { id: "mjb4-5", sizes: '5×5/10×10 mm', bsa: false, vacuum: false, teflon: false },
+  { id: "mjb4-6", sizes: '5×5/10×10 mm', bsa: false, vacuum: false, teflon: true },
+  { id: "mjb4-7", sizes: '10×10/20×20 mm', bsa: false, vacuum: false, teflon: false },
+  { id: "mjb4-8", sizes: '10×10/20×20 mm', bsa: false, vacuum: false, teflon: true },
+];
+
+function nonStandardChucks(model) {
+  if (model === "mjb4") return NON_STANDARD_CHUCK_MJB4;
+  if (model === "maba6" || model === "maba8") return NON_STANDARD_CHUCK_MA;
+  return [];
+}
+
+function nonStandardLabel(c, model) {
+  const parts = [c.sizes];
+  if (model !== "mjb4") parts.push(c.bsa ? "支持BSA" : "不支持BSA");
+  parts.push(c.vacuum ? "支持真空接触" : "不支持真空接触");
+  parts.push(c.teflon ? "含Teflon涂层" : "无Teflon涂层");
+  return parts.join(" · ");
+}
+
+function chuckWaferSizes(model) {
+  if (model === "mjb4") return ['2"', '3"', '4"', "非标"];
+  if (model === "ma12") return ['6"', '8"', '12"', "非标"];
+  return ['2"', '3"', '4"', '6"', '8"', "非标"];
+}
+
+function defaultChuckWafer(model) {
+  const sizes = chuckWaferSizes(model).filter((s) => s !== "非标");
+  return sizes.includes('6"') ? '6"' : sizes[sizes.length - 1];
+}
 
 const CHUCK_NOTES =
   "1. 真空接触 Chuck 带用于形成真空腔体的橡胶圈；真空接触分辨率最高，掩模版损伤也最大。<br/>" +
@@ -155,15 +229,20 @@ function renderSections() {
   const wrap = $("#sections");
   let html = "";
   let idx = 0;
+  let dynamicsInserted = false;
   SECTIONS.forEach((sec) => {
-    idx++;
-    html += renderSection(sec, idx);
-    if (sec.id === "light_source") {
+    if (sec.visible && !sec.visible(state.selection)) return;
+    if (sec.id === "exposure_mode" && !dynamicsInserted) {
       html += renderChuckSection(++idx);
       html += renderMaskHolderSection(++idx);
+      dynamicsInserted = true;
     }
+    idx++;
+    html += renderSection(sec, idx);
   });
   wrap.innerHTML = html;
+  updateAlignmentImage();
+  renderExposureSchematic();
 }
 
 function sectionHeader(sec, idx) {
@@ -181,34 +260,52 @@ function renderSection(sec, idx) {
 
   const opts = visibleOpts.map((o) => {
     const checked = isMulti ? (Array.isArray(cur) && cur.includes(o.id)) : cur === o.id;
+    const disabled = o.disabledModels && o.disabledModels.includes(state.model);
     return `
-      <label class="option ${checked ? "selected" : ""}">
-        <input type="${sec.type}" name="${sec.id}" value="${o.id}" ${checked ? "checked" : ""} />
+      <label class="option ${checked ? "selected" : ""} ${disabled ? "disabled" : ""}">
+        <input type="${sec.type}" name="${sec.id}" value="${o.id}" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""} />
         <span class="option-label"><span class="zh">${o.zh}</span><span class="en">${o.en}</span></span>
       </label>`;
   }).join("");
 
   const notes = sec.notes ? `<div class="notes hidden" data-notes="${sec.id}">${sec.notes}</div>` : "";
+  const gallery = sec.id === "alignment" ? `<div class="align-gallery" data-align-gallery></div>` : "";
+  const schematic = sec.id === "exposure_area" ? `
+    <div class="exposure-wrap">
+      <div class="exposure-schematic" data-exposure-schematic></div>
+      <figure class="exposure-photo">
+        <img src="images/Exposure.png" alt="曝光范围示意图" loading="lazy" />
+      </figure>
+    </div>` : "";
 
   return `
     <section class="section" data-section="${sec.id}">
       ${sectionHeader(sec, idx)}
-      <div class="section-body">${opts}${notes}</div>
+      <div class="section-body">${opts}${schematic}${notes}${gallery}</div>
     </section>`;
 }
 
+function maskHolderSizes(model) {
+  return chuckWaferSizes(model).filter((s) => s !== "非标");
+}
+
 function renderChuckSection(idx) {
-  const rows = state.chucks.map((c, i) => `
-    <div class="dyn-row">
-      <div class="dyn-row-head">
-        <span class="dyn-title">晶圆吸盘 Chuck #${i + 1}</span>
-        <button class="btn" data-action="remove-chuck" data-i="${i}">删除</button>
-      </div>
-      <label class="chuck-wafer">晶圆尺寸 Wafer Size：
-        <select data-action="chuck-wafer" data-i="${i}">
-          ${CHUCK_WAFER_SIZES.map((s) => `<option value="${s}" ${c.waferSize === s ? "selected" : ""}>${s}</option>`).join("")}
+  const presets = nonStandardChucks(state.model);
+  const waferSizes = chuckWaferSizes(state.model);
+  const rows = state.chucks.map((c, i) => {
+    const isNonStd = c.waferSize === "非标";
+    let extra = "";
+    if (isNonStd) {
+      extra = `
+      <label class="chuck-nonstd">非标准晶圆夹具 Non-standard Chuck：
+        <select data-action="chuck-nonstandard" data-i="${i}">
+          <option value="">— 标准（不选）—</option>
+          ${presets.map((p) => `<option value="${p.id}" ${c.nonStandard === p.id ? "selected" : ""}>${nonStandardLabel(p, state.model)}</option>`).join("")}
         </select>
-      </label>
+      </label>`;
+    } else {
+      extra = `
+      <div class="dyn-options">
       ${CHUCK_OPTIONS.map((o) => {
         const checked = c.options.has(o.id);
         return `
@@ -217,15 +314,30 @@ function renderChuckSection(idx) {
             <span class="option-label"><span class="zh">${o.zh}</span><span class="en">${o.en}</span></span>
           </label>`;
       }).join("")}
-    </div>`).join("");
+      </div>`;
+    }
+    return `
+    <div class="dyn-row">
+      <div class="dyn-row-head">
+        <span class="dyn-title">晶圆吸盘 Chuck #${i + 1}</span>
+        <button class="btn icon-btn" data-action="remove-chuck" data-i="${i}" title="删除">✕</button>
+      </div>
+      <label class="chuck-wafer">晶圆尺寸 Wafer Size：
+        <select data-action="chuck-wafer" data-i="${i}">
+          ${waferSizes.map((s) => `<option value="${s.replace(/"/g, "&quot;")}" ${c.waferSize === s ? "selected" : ""}>${s}</option>`).join("")}
+        </select>
+      </label>
+      ${extra}
+    </div>`;
+  }).join("");
 
   return `
     <section class="section" data-section="chuck">
       ${dynamicHeader(idx, "晶圆吸盘", "Chuck and Mask Holder — Chuck")}
       <div class="section-body">
         <div class="dyn-controls">
-          <button class="btn" data-action="add-chuck">增加晶圆吸盘 Add Chuck</button>
-          <button class="btn" data-action="reset-chucks">重置 Reset</button>
+          <button class="btn icon-btn" data-action="add-chuck" title="增加晶圆吸盘 Add Chuck">＋</button>
+          <button class="btn icon-btn" data-action="reset-chucks" title="重置 Reset">↻</button>
         </div>
         ${rows || '<p class="summary-empty">尚未添加晶圆吸盘，点击上方按钮添加。</p>'}
         <div class="notes hidden" data-notes="chuck">${CHUCK_NOTES}</div>
@@ -234,20 +346,32 @@ function renderChuckSection(idx) {
 }
 
 function renderMaskHolderSection(idx) {
+  const sizes = maskHolderSizes(state.model);
   const rows = state.maskHolders.map((m, i) => `
     <div class="dyn-row">
       <div class="dyn-row-head">
         <span class="dyn-title">掩模版架 Mask Holder #${i + 1}</span>
-        <button class="btn" data-action="remove-maskholder" data-i="${i}">删除</button>
+        <button class="btn icon-btn" data-action="remove-maskholder" data-i="${i}" title="删除">✕</button>
       </div>
+      <label class="chuck-wafer">曝光孔大小 Exposure Opening Size：
+        <select data-action="maskholder-size" data-i="${i}">
+          ${sizes.map((s) => `<option value="${s.replace(/"/g, "&quot;")}" ${m.openingSize === s ? "selected" : ""}>${s}</option>`).join("")}
+        </select>
+      </label>
+      <div class="dyn-options">
       ${MASK_HOLDER_OPTIONS.map((o) => {
         const checked = m.options.has(o.id);
+        const isOpening = o.id === "round" || o.id === "square";
+        const type = isOpening ? "radio" : "checkbox";
+        const action = isOpening ? "maskholder-opening" : "maskholder-opt";
+        const name = isOpening ? `maskholder-opening-${i}` : `maskholder-opt-${i}`;
         return `
           <label class="option ${checked ? "selected" : ""}">
-            <input type="checkbox" data-action="maskholder-opt" data-i="${i}" value="${o.id}" ${checked ? "checked" : ""} />
+            <input type="${type}" data-action="${action}" data-i="${i}" name="${name}" value="${o.id}" ${checked ? "checked" : ""} />
             <span class="option-label"><span class="zh">${o.zh}</span><span class="en">${o.en}</span></span>
           </label>`;
       }).join("")}
+      </div>
     </div>`).join("");
 
   return `
@@ -255,8 +379,8 @@ function renderMaskHolderSection(idx) {
       ${dynamicHeader(idx, "掩模版架", "Chuck and Mask Holder — Mask Holder")}
       <div class="section-body">
         <div class="dyn-controls">
-          <button class="btn" data-action="add-maskholder">增加掩模版架 Add Mask Holder</button>
-          <button class="btn" data-action="reset-maskholders">重置 Reset</button>
+          <button class="btn icon-btn" data-action="add-maskholder" title="增加掩模版架 Add Mask Holder">＋</button>
+          <button class="btn icon-btn" data-action="reset-maskholders" title="重置 Reset">↻</button>
         </div>
         ${rows || '<p class="summary-empty">尚未添加掩模版架，点击上方按钮添加。</p>'}
         <div class="notes hidden" data-notes="maskholder">${MASK_HOLDER_NOTES}</div>
@@ -287,6 +411,130 @@ function highlightSection(sectionId, type) {
   });
 }
 
+function updateAlignmentImage() {
+  const gallery = document.querySelector("[data-align-gallery]");
+  if (!gallery) return;
+  const sec = SECTIONS.find((s) => s.id === "alignment");
+  const opt = sec.options.find((o) => o.id === state.selection.alignment);
+  const imgs = (opt && opt.imgs) || [];
+  if (!imgs.length) { gallery.innerHTML = ""; gallery.style.display = "none"; return; }
+  gallery.style.display = "grid";
+  gallery.innerHTML = imgs.map((src) => `
+    <figure class="align-item"><img src="${src}" alt="${opt.zh}" loading="lazy" /></figure>`).join("");
+}
+
+const WAFER_MM = { "4": 100, "6": 150, "8": 200, "12": 300 };
+const SIZE_SCALE = { "4": 38, "6": 54, "8": 70, "12": 86 };
+
+function renderExposureSchematic() {
+  const el = document.querySelector("[data-exposure-schematic]");
+  if (!el) return;
+  const photo = document.querySelector(".exposure-photo");
+  const id = state.selection.exposure_area;
+  const sec = SECTIONS.find((s) => s.id === "exposure_area");
+  const opt = sec.options.find((o) => o.id === id);
+  if (!opt) {
+    el.innerHTML = "";
+    if (photo) photo.style.display = "none";
+    return;
+  }
+  if (photo) photo.style.display = "";
+  const round = /round$/.test(id);
+  const size = id.replace(/round|sq/g, "");
+  const mm = WAFER_MM[size] || "";
+  const shape = round ? "圆形" : "方形";
+  const dimension = round ? "直径" : "边长";
+  el.innerHTML = `
+    <div class="schematic-figure">${exposureSchematicSVG(round, size)}</div>
+    <div class="schematic-label">${shape}曝光范围 · ${dimension} ${size}"（${mm} mm）</div>`;
+  syncExposurePhotoHeight();
+}
+
+function syncExposurePhotoHeight() {
+  const schematic = document.querySelector("[data-exposure-schematic]");
+  const img = document.querySelector(".exposure-photo img");
+  if (!schematic || !img) return;
+  const apply = () => {
+    const h = Math.round(schematic.getBoundingClientRect().height);
+    const cur = parseInt(img.style.height, 10);
+    if (cur !== h) {
+      img.style.height = h + "px";
+      img.style.width = "auto";
+    }
+  };
+  apply();
+  requestAnimationFrame(apply);
+  if (window._exposureResizeObserver) window._exposureResizeObserver.disconnect();
+  window._exposureResizeObserver = new ResizeObserver(() => apply());
+  window._exposureResizeObserver.observe(schematic);
+}
+
+function dimensionLine(x1, x2, yBase, label, clearance, direction = -1) {
+  const y = yBase + direction * (clearance || 34);
+  const startY = yBase + direction * 8;
+  return `
+    <line x1="${x1}" y1="${startY}" x2="${x1}" y2="${y}" stroke="#003F30" stroke-width="1.2"/>
+    <line x1="${x2}" y1="${startY}" x2="${x2}" y2="${y}" stroke="#003F30" stroke-width="1.2"/>
+    <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#003F30" stroke-width="1.5"/>
+    <path d="M${x1} ${y} l7 -4.5 v9 z" fill="#003F30"/>
+    <path d="M${x2} ${y} l-7 -4.5 v9 z" fill="#003F30"/>
+    <text x="${(x1 + x2) / 2}" y="${y + (direction === 1 ? 19 : -7)}" text-anchor="middle" font-size="13.5" font-weight="700" fill="#003F30">${label}</text>`;
+}
+
+function exposureSchematicSVG(round, size) {
+  const mm = WAFER_MM[size] || "";
+  const uvLabel = (y) => `<text x="130" y="${y}" text-anchor="middle" font-size="15" font-weight="700" fill="#7e22ce" stroke="#fff" stroke-width="4" paint-order="stroke">紫外光（UV）</text>`;
+  if (round) {
+    const rx = SIZE_SCALE[size] || 60;
+    const ry = Math.round(rx * 0.36);
+    const cx = 130, lightTopY = 88, lightBottomY = lightTopY + 16;
+    const waferTopY = lightBottomY, waferBottomY = waferTopY + 10;
+    const left = cx - rx, right = cx + rx;
+    const svgHeight = waferBottomY + ry + 46;
+    return `
+    <svg viewBox="0 0 260 ${svgHeight}" role="img" aria-label="${size} 英寸圆形曝光范围与晶圆三维示意图，紫外光在上方并遮挡晶圆">
+      <ellipse cx="${cx}" cy="${waferBottomY}" rx="${rx}" ry="${ry}" fill="#64748b"/>
+      <path d="M${left} ${waferTopY} L${left} ${waferBottomY} A${rx} ${ry} 0 0 0 ${right} ${waferBottomY} L${right} ${waferTopY} A${rx} ${ry} 0 0 1 ${left} ${waferTopY} Z" fill="#94a3b8"/>
+      <ellipse cx="${cx}" cy="${waferTopY}" rx="${rx}" ry="${ry}" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+      <text x="${cx}" y="${waferBottomY + ry + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">晶圆</text>
+      <ellipse cx="${cx}" cy="${lightBottomY}" rx="${rx}" ry="${ry}" fill="#7e22ce"/>
+      <path d="M${left} ${lightTopY} L${left} ${lightBottomY} A${rx} ${ry} 0 0 0 ${right} ${lightBottomY} L${right} ${lightTopY} A${rx} ${ry} 0 0 1 ${left} ${lightTopY} Z" fill="#a855f7"/>
+      <ellipse cx="${cx}" cy="${lightTopY}" rx="${rx}" ry="${ry}" fill="#e9d5ff" stroke="#7e22ce" stroke-width="2"/>
+      <ellipse cx="${cx}" cy="${lightTopY}" rx="${Math.round(rx * 0.62)}" ry="${Math.round(ry * 0.62)}" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="6 5"/>
+      ${uvLabel(lightTopY - ry - 10)}
+      <text x="${cx}" y="${lightTopY + 6}" text-anchor="middle" font-size="14" font-weight="700" fill="#6b21a8">${size}"</text>
+      ${dimensionLine(left, right, waferBottomY, `Ø ${mm} mm（${size}"）`, ry + 18, 1)}
+    </svg>`;
+  }
+  const s = SIZE_SCALE[size] || 60;
+  const halfW = Math.round(s * 0.78);
+  const hh = Math.round(s * 0.38);
+  const cx = 130;
+  const backLeftX = cx - s, backRightX = backLeftX + halfW * 2;
+  const frontRightX = cx + s, frontLeftX = frontRightX - halfW * 2;
+  const lightTopY = 88, lightBackY = lightTopY - hh, lightFrontY = lightTopY + hh, lightH = 12;
+  const waferTopY = lightTopY + lightH, waferBackY = waferTopY - hh, waferFrontY = waferTopY + hh, waferH = 10;
+  const innerS = Math.round(s * 0.55), innerHalfW = Math.round(halfW * 0.55), innerHh = Math.round(hh * 0.55);
+  const innerBackLeftX = cx - innerS, innerBackRightX = innerBackLeftX + innerHalfW * 2;
+  const innerFrontRightX = cx + innerS, innerFrontLeftX = innerFrontRightX - innerHalfW * 2;
+  const svgHeight = waferFrontY + waferH + 46;
+  return `
+    <svg viewBox="0 0 260 ${svgHeight}" role="img" aria-label="${size} 英寸方形曝光范围（边长）与晶圆三维示意图，紫外光在上方并遮挡晶圆">
+      <path d="M${backRightX} ${waferBackY} L${frontRightX} ${waferFrontY} L${frontRightX} ${waferFrontY + waferH} L${backRightX} ${waferBackY + waferH} Z" fill="#94a3b8"/>
+      <path d="M${frontLeftX} ${waferFrontY} L${frontRightX} ${waferFrontY} L${frontRightX} ${waferFrontY + waferH} L${frontLeftX} ${waferFrontY + waferH} Z" fill="#cbd5e1"/>
+      <path d="M${backLeftX} ${waferBackY} L${backRightX} ${waferBackY} L${frontRightX} ${waferFrontY} L${frontLeftX} ${waferFrontY} Z" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+      <text x="${cx}" y="${waferFrontY + 16}" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">晶圆</text>
+      <path d="M${backRightX} ${lightBackY} L${frontRightX} ${lightFrontY} L${frontRightX} ${lightFrontY + lightH} L${backRightX} ${lightBackY + lightH} Z" fill="#9333ea"/>
+      <path d="M${frontLeftX} ${lightFrontY} L${frontRightX} ${lightFrontY} L${frontRightX} ${lightFrontY + lightH} L${frontLeftX} ${lightFrontY + lightH} Z" fill="#a855f7"/>
+      <path d="M${backLeftX} ${lightBackY} L${backRightX} ${lightBackY} L${frontRightX} ${lightFrontY} L${frontLeftX} ${lightFrontY} Z" fill="#e9d5ff" stroke="#7e22ce" stroke-width="2"/>
+      <path d="M${backLeftX} ${lightBackY} L${backLeftX} ${lightBackY + lightH} L${frontLeftX} ${lightFrontY + lightH} L${frontLeftX} ${lightFrontY}" fill="none" stroke="#7e22ce" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M${innerBackLeftX} ${lightTopY - innerHh} L${innerBackRightX} ${lightTopY - innerHh} L${innerFrontRightX} ${lightTopY + innerHh} L${innerFrontLeftX} ${lightTopY + innerHh} Z" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="6 5"/>
+      ${uvLabel(lightBackY - 10)}
+      <text x="${cx}" y="${lightTopY + 5}" text-anchor="middle" font-size="14" font-weight="700" fill="#6b21a8">${size}"</text>
+      ${dimensionLine(frontLeftX, frontRightX, waferFrontY + waferH, `边长 ${mm} mm（${size}"）`, 18, 1)}
+    </svg>`;
+}
+
 /* ============================ 交互（事件委托，绑定一次） ============================ */
 
 function onSectionsChange(e) {
@@ -295,9 +543,12 @@ function onSectionsChange(e) {
     // 动态行
     const i = parseInt(t.dataset.i, 10);
     const action = t.dataset.action;
-    if (action === "chuck-wafer") state.chucks[i].waferSize = t.value;
+    if (action === "chuck-wafer") { state.chucks[i].waferSize = t.value; renderSections(); }
     else if (action === "chuck-opt") { const s = state.chucks[i].options; t.checked ? s.add(t.value) : s.delete(t.value); }
     else if (action === "maskholder-opt") { const s = state.maskHolders[i].options; t.checked ? s.add(t.value) : s.delete(t.value); }
+    else if (action === "maskholder-opening") { const s = state.maskHolders[i].options; s.delete("round"); s.delete("square"); s.add(t.value); }
+    else if (action === "chuck-nonstandard") state.chucks[i].nonStandard = t.value;
+    else if (action === "maskholder-size") state.maskHolders[i].openingSize = t.value;
     updateSummary();
     return;
   }
@@ -314,6 +565,9 @@ function onSectionsChange(e) {
   }
   highlightSection(sec.id, sec.type);
   updateSummary();
+  if (sec.id === "alignment") updateAlignmentImage();
+  if (sec.id === "exposure_area") renderExposureSchematic();
+  if (sec.id === "light_source") renderSections();
 }
 
 function onSectionsClick(e) {
@@ -322,10 +576,10 @@ function onSectionsClick(e) {
   const action = btn.dataset.action;
   const i = parseInt(btn.dataset.i, 10);
   switch (action) {
-    case "add-chuck": state.chucks.push({ waferSize: CHUCK_WAFER_SIZES[3], options: new Set() }); break;
+    case "add-chuck": state.chucks.push({ waferSize: defaultChuckWafer(state.model), options: new Set(), nonStandard: "" }); break;
     case "remove-chuck": state.chucks.splice(i, 1); break;
     case "reset-chucks": state.chucks = []; break;
-    case "add-maskholder": state.maskHolders.push({ options: new Set() }); break;
+    case "add-maskholder": state.maskHolders.push({ openingSize: defaultChuckWafer(state.model), options: new Set() }); break;
     case "remove-maskholder": state.maskHolders.splice(i, 1); break;
     case "reset-maskholders": state.maskHolders = []; break;
     default: return;
@@ -334,15 +588,45 @@ function onSectionsClick(e) {
   updateSummary();
 }
 
+function cleanSelectionForModel() {
+  SECTIONS.forEach((sec) => {
+    if (sec.visible && !sec.visible(state.selection)) {
+      delete state.selection[sec.id];
+      return;
+    }
+    const cur = state.selection[sec.id];
+    if (cur == null) return;
+    if (sec.type === "checkbox" && Array.isArray(cur)) {
+      const valid = cur.filter((id) => {
+        const o = sec.options.find((x) => x.id === id);
+        return !o || !o.models || o.models.includes(state.model);
+      });
+      if (valid.length) state.selection[sec.id] = valid;
+      else delete state.selection[sec.id];
+    } else {
+      const o = sec.options.find((x) => x.id === cur);
+      if (o && o.models && !o.models.includes(state.model)) {
+        delete state.selection[sec.id];
+      }
+    }
+  });
+}
+
 function onModelClick(e) {
   const card = e.target.closest(".model-card");
   if (!card) return;
   state.model = card.querySelector("input").value;
-  const area = state.selection.exposure_area;
-  const areaOpt = SECTIONS.find((s) => s.id === "exposure_area").options.find((o) => o.id === area);
-  if (areaOpt && areaOpt.models && !areaOpt.models.includes(state.model)) {
-    delete state.selection.exposure_area;
-  }
+  const sizes = chuckWaferSizes(state.model);
+  state.chucks.forEach((c) => {
+    c.nonStandard = "";
+    if (!sizes.includes(c.waferSize)) c.waferSize = defaultChuckWafer(state.model);
+  });
+  const mhSizes = maskHolderSizes(state.model);
+  state.maskHolders.forEach((m) => {
+    if (!mhSizes.includes(m.openingSize)) m.openingSize = defaultChuckWafer(state.model);
+  });
+  cleanSelectionForModel();
+  if (state.model === "mjb4") state.selection.light_source = "led";
   renderModelSelector();
   renderSections();
   updateSummary();
@@ -363,6 +647,7 @@ function updateSummary() {
   items.push({ key: "设备型号", val: model.name });
 
   SECTIONS.forEach((sec) => {
+    if (sec.visible && !sec.visible(state.selection)) return;
     const cur = state.selection[sec.id];
     if (sec.type === "checkbox") {
       if (Array.isArray(cur) && cur.length) {
@@ -374,12 +659,20 @@ function updateSummary() {
   });
 
   state.chucks.forEach((c, i) => {
-    const opts = [...c.options].map((id) => (CHUCK_OPTIONS.find((o) => o.id === id) || {}).zh || id);
-    items.push({ key: `Chuck #${i + 1}`, val: [c.waferSize, ...opts].join(" · ") });
+    let parts;
+    if (c.waferSize === "非标") {
+      parts = ["非标"];
+      const preset = nonStandardChucks(state.model).find((p) => p.id === c.nonStandard);
+      parts.push(preset ? nonStandardLabel(preset, state.model) : "未指定非标夹具");
+    } else {
+      const opts = [...c.options].map((id) => (CHUCK_OPTIONS.find((o) => o.id === id) || {}).zh || id);
+      parts = [c.waferSize, ...opts];
+    }
+    items.push({ key: `Chuck #${i + 1}`, val: parts.join(" · ") });
   });
   state.maskHolders.forEach((m, i) => {
     const opts = [...m.options].map((id) => (MASK_HOLDER_OPTIONS.find((o) => o.id === id) || {}).zh || id);
-    items.push({ key: `Mask Holder #${i + 1}`, val: opts.join(" · ") || "未指定" });
+    items.push({ key: `Mask Holder #${i + 1}`, val: [m.openingSize, ...opts].join(" · ") || "未指定" });
   });
 
   list.innerHTML = items.length
@@ -409,8 +702,8 @@ function serializeState() {
     owner: $("#owner-name").value,
     date: $("#quote-date").value,
     selection: state.selection,
-    chucks: state.chucks.map((c) => ({ waferSize: c.waferSize, options: [...c.options] })),
-    maskHolders: state.maskHolders.map((m) => ({ options: [...m.options] })),
+    chucks: state.chucks.map((c) => ({ waferSize: c.waferSize, options: [...c.options], nonStandard: c.nonStandard || "" })),
+    maskHolders: state.maskHolders.map((m) => ({ openingSize: m.openingSize || "", options: [...m.options] })),
   };
 }
 
@@ -421,8 +714,20 @@ function deserializeState(data) {
   $("#owner-name").value = data.owner || "";
   $("#quote-date").value = data.date || "";
   state.selection = data.selection || {};
-  state.chucks = (data.chucks || []).map((c) => ({ waferSize: c.waferSize, options: new Set(c.options || []) }));
-  state.maskHolders = (data.maskHolders || []).map((m) => ({ options: new Set(m.options || []) }));
+  cleanSelectionForModel();
+  if (state.model === "mjb4") state.selection.light_source = "led";
+  state.chucks = (data.chucks || []).map((c) => {
+    const sizes = chuckWaferSizes(state.model);
+    const presets = nonStandardChucks(state.model);
+    const waferSize = sizes.includes(c.waferSize) ? c.waferSize : defaultChuckWafer(state.model);
+    const nonStandard = c.nonStandard && presets.some((p) => p.id === c.nonStandard) ? c.nonStandard : "";
+    return { waferSize, options: new Set(c.options || []), nonStandard };
+  });
+  state.maskHolders = (data.maskHolders || []).map((m) => {
+    const sizes = maskHolderSizes(state.model);
+    const openingSize = sizes.includes(m.openingSize) ? m.openingSize : defaultChuckWafer(state.model);
+    return { openingSize, options: new Set(m.options || []) };
+  });
   renderModelSelector();
   renderSections();
   updateSummary();
@@ -454,6 +759,7 @@ function resetAll() {
 function collectItems() {
   const items = [];
   SECTIONS.forEach((sec) => {
+    if (sec.visible && !sec.visible(state.selection)) return;
     const cur = state.selection[sec.id];
     if (sec.type === "checkbox" && Array.isArray(cur) && cur.length) {
       items.push({ k: sec.zh, v: cur.map((id) => optionLabel(sec.id, id)).join("、") });
@@ -462,12 +768,20 @@ function collectItems() {
     }
   });
   state.chucks.forEach((c, i) => {
-    const opts = [...c.options].map((id) => (CHUCK_OPTIONS.find((o) => o.id === id) || {}).zh || id);
-    items.push({ k: `Chuck #${i + 1}`, v: [c.waferSize, ...opts].join(" · ") });
+    let parts;
+    if (c.waferSize === "非标") {
+      parts = ["非标"];
+      const preset = nonStandardChucks(state.model).find((p) => p.id === c.nonStandard);
+      parts.push(preset ? nonStandardLabel(preset, state.model) : "未指定非标夹具");
+    } else {
+      const opts = [...c.options].map((id) => (CHUCK_OPTIONS.find((o) => o.id === id) || {}).zh || id);
+      parts = [c.waferSize, ...opts];
+    }
+    items.push({ k: `Chuck #${i + 1}`, v: parts.join(" · ") });
   });
   state.maskHolders.forEach((m, i) => {
     const opts = [...m.options].map((id) => (MASK_HOLDER_OPTIONS.find((o) => o.id === id) || {}).zh || id);
-    items.push({ k: `Mask Holder #${i + 1}`, v: opts.join(" · ") || "未指定" });
+    items.push({ k: `Mask Holder #${i + 1}`, v: [m.openingSize, ...opts].join(" · ") || "未指定" });
   });
   return items;
 }
@@ -511,11 +825,9 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#" + id).addEventListener("input", updateSummaryMeta);
   });
 
-  $("#btn-export").addEventListener("click", exportJSON);
   $("#btn-reset").addEventListener("click", resetAll);
-  $("#btn-spec").addEventListener("click", () => window.print());
-  $("#btn-quote").addEventListener("click", showQuotation);
   $("#btn-print").addEventListener("click", () => window.print());
+  $("#btn-save-json").addEventListener("click", exportJSON);
 
   $("#btn-import").addEventListener("click", () => $("#import-file").click());
   $("#import-file").addEventListener("change", (e) => {
@@ -527,11 +839,5 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     reader.readAsText(file);
     e.target.value = "";
-  });
-
-  $("#btn-toggle-notes").addEventListener("click", () => {
-    const notes = $$(".notes");
-    const anyHidden = [...notes].some((n) => n.classList.contains("hidden"));
-    notes.forEach((n) => n.classList.toggle("hidden", !anyHidden));
   });
 });
