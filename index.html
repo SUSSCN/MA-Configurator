@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0" />
   <title>SUSS 光刻机配置器 · MJB4 / MA6 / MA8 / MA12</title>
   <meta name="description" content="SUSS MicroTec MJB4、MA/BA6 Gen4、MA/BA8 Gen4 与 MA12 Gen3 掩模/键合对准机配置工具" />
-  <link rel="stylesheet" href="css/style.css?v=20261108-header13" />
+  <link rel="stylesheet" href="css/style.css?v=20261109-header16" />
 </head>
 <body>
   <header class="topbar">
@@ -37,31 +37,6 @@
         <!-- JS 渲染各配置项 -->
       </div>
 
-      <section class="gallery">
-        <div class="panel-head">
-          <h2>产品图库</h2>
-          <p>Product Gallery — 图片来自 SUSS MicroTec 官网</p>
-        </div>
-        <div class="gallery-grid">
-          <figure class="gallery-item">
-            <img src="images/MJB4.png" alt="MJB4" loading="lazy" />
-            <figcaption>MJB4 · 4″ 手动掩模对准</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <img src="images/MA68Gen4.png" alt="MA/BA6 Gen4" loading="lazy" />
-            <figcaption>MA/BA6 Gen4 · 6″ 掩模 / 键合对准</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <img src="images/MA68Gen4.png" alt="MA/BA8 Gen4" loading="lazy" />
-            <figcaption>MA/BA8 Gen4 · 8″ 掩模 / 键合对准</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <img src="images/MA12.png" alt="MA12 Gen3" loading="lazy" />
-            <figcaption>MA12 Gen3 · 12″ 掩模对准</figcaption>
-          </figure>
-        </div>
-      </section>
-
       <section class="about">
         <h2>关于 SUSS MicroTec</h2>
         <p>
@@ -76,9 +51,10 @@
         </p>
         <p class="about-sources">
           数据来源与图片版权：SUSS MicroTec 官方网站。
-          <a href="https://www.suss.com/en/content/download/2839/35480?version=4" target="_blank" rel="noopener">下载产品手册（PDF）</a>
+          <a href="https://www.suss.com" target="_blank" rel="noopener">下载产品手册（PDF）</a>
         </p>
       </section>
+
     </section>
 
     <aside class="summary">
@@ -91,15 +67,15 @@
         <h2>已选配置</h2>
         <span id="summary-count" class="badge">0</span>
       </div>
-      <div class="summary-actions">
-        <button class="btn" id="btn-print">打印为 PDF</button>
-        <button class="btn" id="btn-save-json">保存为 JSON</button>
-      </div>
       <div id="summary-list" class="summary-list">
         <p class="summary-empty">尚未选择任何配置项</p>
       </div>
       <div class="summary-foot">
         <div id="summary-customer" class="summary-meta"></div>
+      </div>
+      <div class="summary-actions">
+        <button class="btn" id="btn-print">打印为 PDF</button>
+        <button class="btn" id="btn-save-json">保存为 JSON</button>
       </div>
     </aside>
   </main>
@@ -113,6 +89,8 @@
     </p>
   </footer>
 
-  <script src="js/app.js?v=20261108-uv21"></script>
+  <script src="js/jspdf.umd.min.js"></script>
+  <script src="js/html2canvas.min.js"></script>
+  <script src="js/app.js?v=20261108-uv24"></script>
 </body>
 </html>

@@ -208,6 +208,8 @@ const state = {
   maskHolders: [],     // [{ options:Set }]
 };
 
+const MODEL_SHORT = { mjb4: "MJB4", maba6: "MA6", maba8: "MA8", ma12: "MA12" };
+
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
@@ -231,12 +233,12 @@ function renderSections() {
   let idx = 0;
   let dynamicsInserted = false;
   SECTIONS.forEach((sec) => {
-    if (sec.visible && !sec.visible(state.selection)) return;
     if (sec.id === "exposure_mode" && !dynamicsInserted) {
       html += renderChuckSection(++idx);
       html += renderMaskHolderSection(++idx);
       dynamicsInserted = true;
     }
+    if (sec.visible && !sec.visible(state.selection)) return;
     idx++;
     html += renderSection(sec, idx);
   });
@@ -733,12 +735,105 @@ function deserializeState(data) {
   updateSummary();
 }
 
+function buildConfigFilename() {
+  const model = MODEL_SHORT[state.model] || "Unknown";
+  const customer = $("#customer-name").value.trim() || "Unknown";
+  const date = $("#quote-date").value || new Date().toISOString().slice(0, 10);
+  return `Config_${model}_${customer}_${date}`;
+}
+
+function validateBeforeSave() {
+  const missing = [];
+  if (!$("#customer-name").value.trim()) missing.push("客户名称");
+  if (!$("#owner-name").value.trim()) missing.push("负责人");
+  if (!state.selection.exposure_area) missing.push("曝光范围");
+  if (!state.selection.alignment) missing.push("对准方式");
+  if (!state.chucks.length && !state.maskHolders.length) missing.push("晶圆吸盘或掩模版（至少一个）");
+  if (missing.length) {
+    alert("保存前请先完成以下必填项：\n\n· " + missing.join("\n· "));
+    return false;
+  }
+  return true;
+}
+
 function exportJSON() {
+  if (!validateBeforeSave()) return;
   const blob = new Blob([JSON.stringify(serializeState(), null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = "suss-config.json"; a.click();
+  a.href = url; a.download = buildConfigFilename() + ".json"; a.click();
   URL.revokeObjectURL(url);
+}
+
+async function exportPDF() {
+  if (!validateBeforeSave()) return;
+  if (!window.html2canvas || !window.jspdf) {
+    alert("PDF 生成组件加载失败，请检查网络后重试。");
+    return;
+  }
+
+  const summary = document.querySelector(".summary");
+  const toolbar = summary.querySelector(".summary-toolbar");
+  const actions = summary.querySelector(".summary-actions");
+  const list = summary.querySelector(".summary-list");
+
+  const saved = {
+    toolbar: toolbar.style.display,
+    actions: actions.style.display,
+    position: summary.style.position,
+    marginTop: summary.style.marginTop,
+    overflow: summary.style.overflow,
+    maxHeight: list.style.maxHeight,
+    listOverflow: list.style.overflow,
+  };
+
+  // 应用打印视图样式（只打印「已选配置」内容）
+  toolbar.style.display = "none";
+  actions.style.display = "none";
+  summary.style.position = "static";
+  summary.style.marginTop = "0";
+  summary.style.overflow = "visible";
+  list.style.maxHeight = "none";
+  list.style.overflow = "visible";
+
+  try {
+    const canvas = await window.html2canvas(summary, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      logging: false,
+    });
+    const imgData = canvas.toDataURL("image/png");
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let position = 0;
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    let heightLeft = imgHeight - pageHeight;
+    while (heightLeft > 0) {
+      position -= pageHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save(buildConfigFilename() + ".pdf");
+  } catch (err) {
+    alert("PDF 生成失败：" + (err && err.message ? err.message : err));
+  } finally {
+    toolbar.style.display = saved.toolbar;
+    actions.style.display = saved.actions;
+    summary.style.position = saved.position;
+    summary.style.marginTop = saved.marginTop;
+    summary.style.overflow = saved.overflow;
+    list.style.maxHeight = saved.maxHeight;
+    list.style.overflow = saved.listOverflow;
+  }
 }
 
 function resetAll() {
@@ -826,7 +921,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   $("#btn-reset").addEventListener("click", resetAll);
-  $("#btn-print").addEventListener("click", () => window.print());
+  $("#btn-print").addEventListener("click", exportPDF);
   $("#btn-save-json").addEventListener("click", exportJSON);
 
   $("#btn-import").addEventListener("click", () => $("#import-file").click());
