@@ -73,7 +73,7 @@ const SECTIONS = [
     ],
   },
   {
-    id: "filter", zh: "滤镜", en: "Filter", type: "radio",
+    id: "filter", zh: "滤镜", en: "Filter", type: "checkbox",
     visible: (sel) => sel.light_source === "hg",
     options: [
       { id: "i_line", zh: "i-Line Filter", en: "i-Line Filter" },
@@ -233,12 +233,12 @@ function renderSections() {
   let idx = 0;
   let dynamicsInserted = false;
   SECTIONS.forEach((sec) => {
+    if (sec.visible && !sec.visible(state.selection)) return;
     if (sec.id === "exposure_mode" && !dynamicsInserted) {
       html += renderChuckSection(++idx);
       html += renderMaskHolderSection(++idx);
       dynamicsInserted = true;
     }
-    if (sec.visible && !sec.visible(state.selection)) return;
     idx++;
     html += renderSection(sec, idx);
   });
@@ -248,10 +248,13 @@ function renderSections() {
 }
 
 function sectionHeader(sec, idx) {
+  const hasNote = sec.notes || sec.id === "exposure_area";
+  const noteBtn = hasNote ? `<button type="button" class="note-toggle" data-note-toggle="${sec.id}">进一步了解</button>` : "";
   return `
     <div class="section-head">
       <span class="idx">${idx}</span>
       <div><h3>${sec.zh}</h3><p class="en">${sec.en}</p></div>
+      ${noteBtn}
     </div>`;
 }
 
@@ -270,7 +273,6 @@ function renderSection(sec, idx) {
       </label>`;
   }).join("");
 
-  const notes = sec.notes ? `<div class="notes hidden" data-notes="${sec.id}">${sec.notes}</div>` : "";
   const gallery = sec.id === "alignment" ? `<div class="align-gallery" data-align-gallery></div>` : "";
   const schematic = sec.id === "exposure_area" ? `
     <div class="exposure-wrap">
@@ -279,11 +281,13 @@ function renderSection(sec, idx) {
         <img src="images/Exposure.png" alt="曝光范围示意图" loading="lazy" />
       </figure>
     </div>` : "";
+  const noteContent = sec.id === "exposure_area" ? schematic : (sec.notes || "");
+  const notes = noteContent ? `<div class="notes hidden" data-notes="${sec.id}">${noteContent}</div>` : "";
 
   return `
     <section class="section" data-section="${sec.id}">
       ${sectionHeader(sec, idx)}
-      <div class="section-body">${opts}${schematic}${notes}${gallery}</div>
+      <div class="section-body">${opts}${notes}${gallery}</div>
     </section>`;
 }
 
@@ -335,7 +339,7 @@ function renderChuckSection(idx) {
 
   return `
     <section class="section" data-section="chuck">
-      ${dynamicHeader(idx, "晶圆吸盘", "Chuck and Mask Holder — Chuck")}
+      ${dynamicHeader(idx, "晶圆吸盘", "Chuck and Mask Holder — Chuck", "chuck")}
       <div class="section-body">
         <div class="dyn-controls">
           <button class="btn icon-btn" data-action="add-chuck" title="增加晶圆吸盘 Add Chuck">＋</button>
@@ -378,7 +382,7 @@ function renderMaskHolderSection(idx) {
 
   return `
     <section class="section" data-section="maskholder">
-      ${dynamicHeader(idx, "掩模版架", "Chuck and Mask Holder — Mask Holder")}
+      ${dynamicHeader(idx, "掩模版架", "Chuck and Mask Holder — Mask Holder", "maskholder")}
       <div class="section-body">
         <div class="dyn-controls">
           <button class="btn icon-btn" data-action="add-maskholder" title="增加掩模版架 Add Mask Holder">＋</button>
@@ -390,11 +394,12 @@ function renderMaskHolderSection(idx) {
     </section>`;
 }
 
-function dynamicHeader(idx, zh, en) {
+function dynamicHeader(idx, zh, en, noteId) {
   return `
     <div class="section-head">
       <span class="idx">${idx}</span>
       <div><h3>${zh}</h3><p class="en">${en}</p></div>
+      <button type="button" class="note-toggle" data-note-toggle="${noteId}">进一步了解</button>
     </div>`;
 }
 
@@ -573,6 +578,16 @@ function onSectionsChange(e) {
 }
 
 function onSectionsClick(e) {
+  const noteBtn = e.target.closest("[data-note-toggle]");
+  if (noteBtn) {
+    const id = noteBtn.dataset.noteToggle;
+    const notes = document.querySelector(`[data-notes="${id}"]`);
+    if (!notes) return;
+    const nowHidden = notes.classList.toggle("hidden");
+    noteBtn.classList.toggle("active", !nowHidden);
+    noteBtn.textContent = nowHidden ? "进一步了解" : "收起说明";
+    return;
+  }
   const btn = e.target.closest("[data-action]");
   if (!btn) return;
   const action = btn.dataset.action;
@@ -743,12 +758,20 @@ function buildConfigFilename() {
 }
 
 function validateBeforeSave() {
+  document.querySelectorAll(".field-error, .section-error").forEach((el) => el.classList.remove("field-error", "section-error"));
+  const markField = (sel) => { const el = document.querySelector(sel); if (el) el.classList.add("field-error"); };
+  const markSection = (id) => { const el = document.querySelector(`[data-section="${id}"]`); if (el) el.classList.add("section-error"); };
+
   const missing = [];
-  if (!$("#customer-name").value.trim()) missing.push("客户名称");
-  if (!$("#owner-name").value.trim()) missing.push("负责人");
-  if (!state.selection.exposure_area) missing.push("曝光范围");
-  if (!state.selection.alignment) missing.push("对准方式");
-  if (!state.chucks.length && !state.maskHolders.length) missing.push("晶圆吸盘或掩模版（至少一个）");
+  if (!$("#customer-name").value.trim()) { missing.push("客户名称"); markField("#customer-name"); }
+  if (!$("#owner-name").value.trim()) { missing.push("负责人"); markField("#owner-name"); }
+  if (!state.selection.exposure_area) { missing.push("曝光范围"); markSection("exposure_area"); }
+  if (!state.selection.alignment) { missing.push("对准方式"); markSection("alignment"); }
+  if (!state.chucks.length && !state.maskHolders.length) {
+    missing.push("晶圆吸盘或掩模版（至少一个）");
+    markSection("chuck");
+    markSection("maskholder");
+  }
   if (missing.length) {
     alert("保存前请先完成以下必填项：\n\n· " + missing.join("\n· "));
     return false;
@@ -765,75 +788,12 @@ function exportJSON() {
   URL.revokeObjectURL(url);
 }
 
-async function exportPDF() {
+function printConfig() {
   if (!validateBeforeSave()) return;
-  if (!window.html2canvas || !window.jspdf) {
-    alert("PDF 生成组件加载失败，请检查网络后重试。");
-    return;
-  }
-
-  const summary = document.querySelector(".summary");
-  const toolbar = summary.querySelector(".summary-toolbar");
-  const actions = summary.querySelector(".summary-actions");
-  const list = summary.querySelector(".summary-list");
-
-  const saved = {
-    toolbar: toolbar.style.display,
-    actions: actions.style.display,
-    position: summary.style.position,
-    marginTop: summary.style.marginTop,
-    overflow: summary.style.overflow,
-    maxHeight: list.style.maxHeight,
-    listOverflow: list.style.overflow,
-  };
-
-  // 应用打印视图样式（只打印「已选配置」内容）
-  toolbar.style.display = "none";
-  actions.style.display = "none";
-  summary.style.position = "static";
-  summary.style.marginTop = "0";
-  summary.style.overflow = "visible";
-  list.style.maxHeight = "none";
-  list.style.overflow = "visible";
-
-  try {
-    const canvas = await window.html2canvas(summary, {
-      scale: 2,
-      backgroundColor: "#ffffff",
-      useCORS: true,
-      logging: false,
-    });
-    const imgData = canvas.toDataURL("image/png");
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    let position = 0;
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    let heightLeft = imgHeight - pageHeight;
-    while (heightLeft > 0) {
-      position -= pageHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
-
-    pdf.save(buildConfigFilename() + ".pdf");
-  } catch (err) {
-    alert("PDF 生成失败：" + (err && err.message ? err.message : err));
-  } finally {
-    toolbar.style.display = saved.toolbar;
-    actions.style.display = saved.actions;
-    summary.style.position = saved.position;
-    summary.style.marginTop = saved.marginTop;
-    summary.style.overflow = saved.overflow;
-    list.style.maxHeight = saved.maxHeight;
-    list.style.overflow = saved.listOverflow;
-  }
+  const prevTitle = document.title;
+  document.title = buildConfigFilename();
+  window.addEventListener("afterprint", () => { document.title = prevTitle; }, { once: true });
+  window.print();
 }
 
 function resetAll() {
@@ -921,7 +881,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   $("#btn-reset").addEventListener("click", resetAll);
-  $("#btn-print").addEventListener("click", exportPDF);
+  $("#btn-print").addEventListener("click", printConfig);
   $("#btn-save-json").addEventListener("click", exportJSON);
 
   $("#btn-import").addEventListener("click", () => $("#import-file").click());

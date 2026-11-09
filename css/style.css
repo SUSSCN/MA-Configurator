@@ -246,6 +246,24 @@ body {
 .notes.hidden { display: none; }
 .notes strong { color: var(--ink); }
 
+.note-toggle {
+  margin-left: auto;
+  border: 1px solid var(--brand-soft);
+  background: #fff;
+  color: var(--brand);
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: none;
+}
+.note-toggle:hover { background: var(--brand-soft); }
+.note-toggle.active { background: var(--brand-soft); }
+
+.field-error { border-color: #d92d20 !important; background: #fef3f2 !important; }
+.section-error { border-color: #d92d20 !important; box-shadow: 0 0 0 2px rgba(217, 45, 32, 0.18); }
+
 /* alignment explanation images */
 .align-gallery {
   display: grid;
