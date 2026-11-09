@@ -41,7 +41,7 @@ const SECTIONS = [
     ],
   },
   {
-    id: "tsa_objective", zh: "TSA 物镜", en: "Objective for TSA", type: "radio",
+    id: "tsa_objective", zh: "TSA 物镜", en: "Objective for TSA", type: "checkbox",
     notes:
       "a. 大多数应用采用 5 倍物镜即可，光学放大 112 倍，视场 1.56×2.07 mm。<br/>" +
       "b. 对准标记特别小（<50 µm）可加 10 倍物镜，放大一倍，视场 0.78×1.04 mm。<br/>" +
@@ -54,7 +54,7 @@ const SECTIONS = [
     ],
   },
   {
-    id: "light_source", zh: "高压汞灯光源", en: "UV Light Source", type: "radio",
+    id: "light_source", zh: "紫外光源", en: "UV Light Source", type: "radio",
     notes:
       "a. LED 灯非曝光时关闭，约 5000 h 后光强衰减至 70%，期望寿命 20000 h。<br/>" +
       "b. 高压汞灯非曝光时也需开启，开机寿命约 600 h。<br/>" +
