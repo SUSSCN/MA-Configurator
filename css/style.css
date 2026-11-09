@@ -235,7 +235,7 @@ body {
 .option-note { color: var(--muted); font-size: 12px; margin-top: 2px; }
 
 .notes {
-  margin: 10px 0 0;
+  margin: 10px 0 12px;
   padding: 10px 12px;
   background: #fbfcfd;
   border-left: 3px solid var(--brand-soft);
@@ -245,6 +245,11 @@ body {
 }
 .notes.hidden { display: none; }
 .notes strong { color: var(--ink); }
+.note-img { margin: 12px 0 4px; text-align: center; }
+.note-img img { max-width: 100%; max-height: 240px; border-radius: 6px; }
+.bond-direct { margin-top: 12px; padding-top: 12px; border-top: 1px dashed #d7dee8; }
+.bond-section.bond-disabled .section-head > div,
+.bond-section.bond-disabled .section-body { opacity: 0.45; }
 
 .note-toggle {
   margin-left: auto;

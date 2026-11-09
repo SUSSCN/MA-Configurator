@@ -15,6 +15,10 @@ const MODELS = [
 const SECTIONS = [
   {
     id: "exposure_area", zh: "曝光范围", en: "Exposure Area", type: "radio",
+    notes:
+      "a. 曝光范围指单次曝光所能覆盖的晶圆区域尺寸，应与晶圆尺寸及掩模版尺寸相匹配。<br/>" +
+      "b. 圆形（Round）曝光适合大多数圆形晶圆，光斑为圆形；方形（Squared）曝光适合方形基片或需整片曝光的大面积图形，光斑为方形。<br/>" +
+      "c. 不同机型支持的曝光范围不同：MJB4 支持 4″，MA/BA6 Gen4 支持 6″，MA/BA8 Gen4 支持 8″，MA12 Gen3 支持 12″。",
     options: [
       { id: "4round", zh: "4英寸圆形", en: '4" Round', models: ["mjb4"] },
       { id: "6round", zh: "6英寸圆形", en: '6" Round', models: ["maba6"] },
@@ -35,8 +39,8 @@ const SECTIONS = [
       { id: "tsa", zh: "TSA（仅正面）", en: "Top Side Alignment", imgs: ["images/TSA.png"] },
       { id: "tsa_bsa", zh: "TSA + BSA（正面 + 背面）", en: "Top + Bottom Side Alignment", imgs: ["images/TSA.png", "images/BSA.png"], models: ["maba6", "maba8", "ma12"] },
       { id: "bsa", zh: "BSA（仅背面）", en: "Bottom Side Alignment", imgs: ["images/BSA.png"], models: ["maba6", "maba8", "ma12"] },
-      { id: "ir_tsa", zh: "TSA + BSA + IR Visualization via TSA（正面 + 背面 + 红外背面光源，正面观察）", en: "TSA + BSA + IR Visualization via TSA", imgs: ["images/IR.png"], models: ["maba6", "maba8", "ma12"] },
-      { id: "ir_bsa", zh: "TSA + BSA + IR Visualization via BSA（正面 + 背面 + 红外正面光源，背面观察）", en: "TSA + BSA + IR Visualization via BSA", imgs: ["images/IR.png"], models: ["maba6", "maba8", "ma12"] },
+      { id: "ir_tsa", zh: "TSA + BSA + IR Visualization via TSA（正面 + 背面 + 红外背面光源，正面观察）", en: "TSA + BSA + IR Visualization via TSA", imgs: ["images/IR1.png"], models: ["maba6", "maba8", "ma12"] },
+      { id: "ir_bsa", zh: "TSA + BSA + IR Visualization via BSA（正面 + 背面 + 红外正面光源，背面观察）", en: "TSA + BSA + IR Visualization via BSA", imgs: ["images/IR2.png"], models: ["maba6", "maba8", "ma12"] },
       { id: "none", zh: "No Alignment（不做对准）", en: "No Alignment", models: ["maba6", "maba8", "ma12"] },
     ],
   },
@@ -90,7 +94,8 @@ const SECTIONS = [
     id: "exposure_mode", zh: "曝光能量控制", en: "Exposure Dosage Control Mode", type: "radio",
     visible: () => state.model !== "mjb4",
     notes:
-      "CPC 即恒定功率模式，通过曝光时间控制曝光量；CDC 即恒定剂量模式，可直接输入剂量，使用更方便。CDC 包含 CPC 功能。建议研发单位仅配置 CPC 模式。",
+      "CPC 即恒定功率模式，通过曝光时间控制曝光量；CDC 即恒定剂量模式，可直接输入剂量，使用更方便。CDC 包含 CPC 功能。建议研发单位仅配置 CPC 模式。" +
+      '<figure class="note-img"><img src="images/CDC.png?v=20261109" alt="曝光能量控制 CPC / CDC" loading="lazy" /></figure>',
     options: [
       { id: "cpc", zh: "CPC 通过曝光时间控制", en: "Constant Power Mode (CPC)" },
       { id: "cdc", zh: "CDC 直接控制曝光剂量", en: "Constant Dose Mode (CDC)" },
@@ -100,7 +105,9 @@ const SECTIONS = [
     id: "auto_alignment", zh: "对准自动化", en: "Automatic Alignment", type: "radio",
     visible: () => state.model !== "mjb4",
     notes:
-      "MA6 / MA8 可配自动对位 Auto Alignment（对位精度 ±0.5 µm for TSA），或超高精度 Direct Alignment（对位精度 ±0.25 µm）。",
+      "MA6 / MA8 可配自动对位 Auto Alignment（对位精度 ±0.5 µm for TSA），或超高精度 Direct Alignment（对位精度 ±0.25 µm）。<br/>" +
+      "下图为超高精度直接对准（DirectAlign®）的解释。" +
+      '<figure class="note-img"><img src="images/DA.png?v=20261109" alt="超高精度直接对准 DirectAlign" loading="lazy" /></figure>',
     options: [
       { id: "manual", zh: "手动对准 Full Manual Alignment", en: "Full Manual Alignment" },
       { id: "auto", zh: "自动对准 Auto Alignment（±0.5 µm）", en: "Auto Alignment" },
@@ -125,6 +132,18 @@ const CHUCK_OPTIONS = [
   { id: "bsa", zh: "支持背面对准", en: "BSA (Backside Alignment)" },
   { id: "teflon", zh: "支持抗反射涂层", en: "Teflon / Anti-reflection Coating" },
 ];
+
+const BOND_SIZES = [
+  { id: "ba8", zh: "8英寸晶圆 键合对准", en: '8" BA' },
+  { id: "ba6", zh: "6英寸晶圆 键合对准", en: '6" BA' },
+  { id: "ba4", zh: "4英寸晶圆 键合对准", en: '4" BA' },
+  { id: "ba_pieces", zh: "3英寸及以下小片", en: '3" and Pieces BA' },
+];
+
+const BOND_ALIGNMENT_NOTES =
+  "a. 键合对准用于键合（Bonding）工艺中晶圆与小片的对准，可按工艺需求同时选择多种晶圆尺寸。<br/>" +
+  "b. 支持 8″、6″、4″ 晶圆以及 3″ 及以下小片，可根据产线需求多选。<br/>" +
+  "c. 若需在键合对准机上直接完成对准（无需转移至对准机），可额外勾选「直接对准」选项。";
 
 const NON_STANDARD_CHUCK_MA = [
   { id: "ma-1", sizes: '5×5/10×10/20×20 mm', bsa: false, vacuum: false, teflon: false },
@@ -206,6 +225,7 @@ const state = {
   selection: {},       // { sectionId: optionId | [optionId,...] }
   chucks: [],          // [{ waferSize, options:Set }]
   maskHolders: [],     // [{ options:Set }]
+  bondAlignment: null, // null 或 { sizes:[], direct:false }
 };
 
 const MODEL_SHORT = { mjb4: "MJB4", maba6: "MA6", maba8: "MA8", ma12: "MA12" };
@@ -232,17 +252,32 @@ function renderSections() {
   let html = "";
   let idx = 0;
   let dynamicsInserted = false;
+  let bondInserted = false;
   SECTIONS.forEach((sec) => {
-    if (sec.visible && !sec.visible(state.selection)) return;
+    const hidden = sec.visible && !sec.visible(state.selection);
     if (sec.id === "exposure_mode" && !dynamicsInserted) {
       html += renderChuckSection(++idx);
       html += renderMaskHolderSection(++idx);
       dynamicsInserted = true;
     }
+    if (sec.id === "accessories" && !bondInserted) {
+      if (state.model === "maba6" || state.model === "maba8") {
+        html += renderBondAlignmentSection(++idx);
+      }
+      bondInserted = true;
+    }
+    if (hidden) return;
     idx++;
     html += renderSection(sec, idx);
   });
+  const openNotes = [...wrap.querySelectorAll("[data-notes]:not(.hidden)")].map((n) => n.dataset.notes);
   wrap.innerHTML = html;
+  openNotes.forEach((id) => {
+    const notes = wrap.querySelector(`[data-notes="${id}"]`);
+    if (notes) notes.classList.remove("hidden");
+    const btn = wrap.querySelector(`[data-note-toggle="${id}"]`);
+    if (btn) { btn.classList.add("active"); btn.textContent = "收起说明"; }
+  });
   updateAlignmentImage();
   renderExposureSchematic();
 }
@@ -278,16 +313,19 @@ function renderSection(sec, idx) {
     <div class="exposure-wrap">
       <div class="exposure-schematic" data-exposure-schematic></div>
       <figure class="exposure-photo">
-        <img src="images/Exposure.png" alt="曝光范围示意图" loading="lazy" />
+        <img src="images/Exposure.png?v=20261109" alt="曝光范围示意图" loading="lazy" />
       </figure>
     </div>` : "";
-  const noteContent = sec.id === "exposure_area" ? schematic : (sec.notes || "");
+  const noteContent = sec.id === "exposure_area" ? (sec.notes || "") + schematic
+    : sec.id === "alignment" ? (sec.notes || "") + gallery
+    : (sec.notes || "");
   const notes = noteContent ? `<div class="notes hidden" data-notes="${sec.id}">${noteContent}</div>` : "";
 
   return `
     <section class="section" data-section="${sec.id}">
       ${sectionHeader(sec, idx)}
-      <div class="section-body">${opts}${notes}${gallery}</div>
+      ${notes}
+      <div class="section-body">${opts}</div>
     </section>`;
 }
 
@@ -340,13 +378,13 @@ function renderChuckSection(idx) {
   return `
     <section class="section" data-section="chuck">
       ${dynamicHeader(idx, "晶圆吸盘", "Chuck and Mask Holder — Chuck", "chuck")}
+      <div class="notes hidden" data-notes="chuck">${CHUCK_NOTES}<figure class="note-img"><img src="images/Chuck.png?v=20261109" alt="晶圆吸盘 Chuck" loading="lazy" /></figure></div>
       <div class="section-body">
         <div class="dyn-controls">
           <button class="btn icon-btn" data-action="add-chuck" title="增加晶圆吸盘 Add Chuck">＋</button>
           <button class="btn icon-btn" data-action="reset-chucks" title="重置 Reset">↻</button>
         </div>
         ${rows || '<p class="summary-empty">尚未添加晶圆吸盘，点击上方按钮添加。</p>'}
-        <div class="notes hidden" data-notes="chuck">${CHUCK_NOTES}</div>
       </div>
     </section>`;
 }
@@ -383,14 +421,52 @@ function renderMaskHolderSection(idx) {
   return `
     <section class="section" data-section="maskholder">
       ${dynamicHeader(idx, "掩模版架", "Chuck and Mask Holder — Mask Holder", "maskholder")}
+      <div class="notes hidden" data-notes="maskholder">${MASK_HOLDER_NOTES}<figure class="note-img"><img src="images/MaskHolder.png?v=20261109" alt="掩模版架 Mask Holder" loading="lazy" /></figure></div>
       <div class="section-body">
         <div class="dyn-controls">
           <button class="btn icon-btn" data-action="add-maskholder" title="增加掩模版架 Add Mask Holder">＋</button>
           <button class="btn icon-btn" data-action="reset-maskholders" title="重置 Reset">↻</button>
         </div>
         ${rows || '<p class="summary-empty">尚未添加掩模版架，点击上方按钮添加。</p>'}
-        <div class="notes hidden" data-notes="maskholder">${MASK_HOLDER_NOTES}</div>
       </div>
+    </section>`;
+}
+
+function renderBondAlignmentSection(idx) {
+  const ba = state.bondAlignment;
+  const active = !!ba;
+  const addBtn = active
+    ? '<button type="button" class="btn icon-btn" data-action="reset-bond" title="移除键合对准功能">✕</button>'
+    : '<button type="button" class="btn icon-btn bond-add" data-action="add-bond" title="添加键合对准功能">＋</button>';
+
+  const sizesHtml = active
+    ? `<div class="dyn-options">${BOND_SIZES.map((o) => {
+        const checked = ba.sizes.includes(o.id);
+        return `
+          <label class="option ${checked ? "selected" : ""}">
+            <input type="checkbox" data-action="bond-size" value="${o.id}" ${checked ? "checked" : ""} />
+            <span class="option-label"><span class="zh">${o.zh}</span><span class="en">${o.en}</span></span>
+          </label>`;
+      }).join("")}
+      </div>
+      <div class="bond-direct">
+        <label class="option ${ba.direct ? "selected" : ""}">
+          <input type="checkbox" data-action="bond-direct" value="direct" ${ba.direct ? "checked" : ""} />
+          <span class="option-label"><span class="zh">在对准机上进行直接键合</span><span class="en">Direct Alignment on Bond Aligner</span></span>
+        </label>
+      </div>`
+    : '<p class="summary-empty">尚未添加键合对准功能，点击上方按钮添加。</p>';
+
+  return `
+    <section class="section bond-section ${active ? "" : "bond-disabled"}" data-section="bond_alignment">
+      <div class="section-head">
+        <span class="idx">${idx}</span>
+        ${addBtn}
+        <div><h3>键合对准</h3><p class="en">Automatic Alignment</p></div>
+        <button type="button" class="note-toggle" data-note-toggle="bond_alignment">进一步了解</button>
+      </div>
+      <div class="notes hidden" data-notes="bond_alignment">${BOND_ALIGNMENT_NOTES}<figure class="note-img"><img src="images/BA.png?v=20261109" alt="键合对准 Bond Alignment" loading="lazy" /></figure></div>
+      <div class="section-body">${sizesHtml}</div>
     </section>`;
 }
 
@@ -427,7 +503,7 @@ function updateAlignmentImage() {
   if (!imgs.length) { gallery.innerHTML = ""; gallery.style.display = "none"; return; }
   gallery.style.display = "grid";
   gallery.innerHTML = imgs.map((src) => `
-    <figure class="align-item"><img src="${src}" alt="${opt.zh}" loading="lazy" /></figure>`).join("");
+    <figure class="align-item"><img src="${src}?v=20261109" alt="${opt.zh}" loading="lazy" /></figure>`).join("");
 }
 
 const WAFER_MM = { "4": 100, "6": 150, "8": 200, "12": 300 };
@@ -556,6 +632,8 @@ function onSectionsChange(e) {
     else if (action === "maskholder-opening") { const s = state.maskHolders[i].options; s.delete("round"); s.delete("square"); s.add(t.value); }
     else if (action === "chuck-nonstandard") state.chucks[i].nonStandard = t.value;
     else if (action === "maskholder-size") state.maskHolders[i].openingSize = t.value;
+    else if (action === "bond-size") { if (state.bondAlignment) { const s = new Set(state.bondAlignment.sizes); t.checked ? s.add(t.value) : s.delete(t.value); state.bondAlignment.sizes = [...s]; } }
+    else if (action === "bond-direct") { if (state.bondAlignment) state.bondAlignment.direct = t.checked; }
     updateSummary();
     return;
   }
@@ -599,6 +677,8 @@ function onSectionsClick(e) {
     case "add-maskholder": state.maskHolders.push({ openingSize: defaultChuckWafer(state.model), options: new Set() }); break;
     case "remove-maskholder": state.maskHolders.splice(i, 1); break;
     case "reset-maskholders": state.maskHolders = []; break;
+    case "add-bond": state.bondAlignment = { sizes: [], direct: false }; break;
+    case "reset-bond": state.bondAlignment = null; break;
     default: return;
   }
   renderSections();
@@ -627,6 +707,7 @@ function cleanSelectionForModel() {
       }
     }
   });
+  if (state.model !== "maba6" && state.model !== "maba8") state.bondAlignment = null;
 }
 
 function onModelClick(e) {
@@ -643,7 +724,7 @@ function onModelClick(e) {
     if (!mhSizes.includes(m.openingSize)) m.openingSize = defaultChuckWafer(state.model);
   });
   cleanSelectionForModel();
-  if (state.model === "mjb4") state.selection.light_source = "led";
+  if (state.model === "mjb4") { state.selection.light_source = "led"; state.selection.alignment = "tsa"; state.selection.exposure_area = "4round"; }
   renderModelSelector();
   renderSections();
   updateSummary();
@@ -692,6 +773,13 @@ function updateSummary() {
     items.push({ key: `Mask Holder #${i + 1}`, val: [m.openingSize, ...opts].join(" · ") || "未指定" });
   });
 
+  if (state.bondAlignment) {
+    const sizes = state.bondAlignment.sizes.map((id) => (BOND_SIZES.find((o) => o.id === id) || {}).zh || id);
+    const parts = [...sizes];
+    if (state.bondAlignment.direct) parts.push("在对准机上进行直接键合");
+    items.push({ key: "键合对准", val: parts.join(" · ") || "未指定" });
+  }
+
   list.innerHTML = items.length
     ? items.map((it) => `<div class="summary-item"><div class="s-key">${it.key}</div><div class="s-val">${it.val}</div></div>`).join("")
     : '<p class="summary-empty">尚未选择任何配置项</p>';
@@ -721,6 +809,7 @@ function serializeState() {
     selection: state.selection,
     chucks: state.chucks.map((c) => ({ waferSize: c.waferSize, options: [...c.options], nonStandard: c.nonStandard || "" })),
     maskHolders: state.maskHolders.map((m) => ({ openingSize: m.openingSize || "", options: [...m.options] })),
+    bondAlignment: state.bondAlignment ? { sizes: [...state.bondAlignment.sizes], direct: state.bondAlignment.direct } : null,
   };
 }
 
@@ -732,7 +821,7 @@ function deserializeState(data) {
   $("#quote-date").value = data.date || "";
   state.selection = data.selection || {};
   cleanSelectionForModel();
-  if (state.model === "mjb4") state.selection.light_source = "led";
+  if (state.model === "mjb4") { state.selection.light_source = "led"; state.selection.alignment = "tsa"; state.selection.exposure_area = "4round"; }
   state.chucks = (data.chucks || []).map((c) => {
     const sizes = chuckWaferSizes(state.model);
     const presets = nonStandardChucks(state.model);
@@ -745,6 +834,10 @@ function deserializeState(data) {
     const openingSize = sizes.includes(m.openingSize) ? m.openingSize : defaultChuckWafer(state.model);
     return { openingSize, options: new Set(m.options || []) };
   });
+  state.bondAlignment = data.bondAlignment && Array.isArray(data.bondAlignment.sizes)
+    ? { sizes: data.bondAlignment.sizes.filter((id) => BOND_SIZES.some((o) => o.id === id)), direct: !!data.bondAlignment.direct }
+    : null;
+  if (state.model !== "maba6" && state.model !== "maba8") state.bondAlignment = null;
   renderModelSelector();
   renderSections();
   updateSummary();
@@ -801,6 +894,7 @@ function resetAll() {
   state.selection = {};
   state.chucks = [];
   state.maskHolders = [];
+  state.bondAlignment = null;
   $("#customer-name").value = "";
   $("#owner-name").value = "";
   $("#quote-date").valueAsDate = new Date();
