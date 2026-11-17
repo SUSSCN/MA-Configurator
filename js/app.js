@@ -184,11 +184,13 @@ function nonStandardChucks(model) {
 
 function nonStandardLabel(c, model) {
   const parts = [c.sizes];
-  if (model !== "mjb4") parts.push(c.bsa ? "支持BSA" : "不支持BSA");
-  parts.push(c.vacuum ? "支持真空接触" : "不支持真空接触");
-  parts.push(c.teflon ? "含Teflon涂层" : "无Teflon涂层");
+  if (model !== "mjb4") parts.push(t(c.bsa ? "chuck.bsa.yes" : "chuck.bsa.no"));
+  parts.push(t(c.vacuum ? "chuck.vac.yes" : "chuck.vac.no"));
+  parts.push(t(c.teflon ? "chuck.teflon.yes" : "chuck.teflon.no"));
   return parts.join(" · ");
 }
+
+const sizeLabel = (s) => (s === "非标" ? t("size.nonstd") : s);
 
 function chuckWaferSizes(model) {
   if (model === "mjb4") return ['2"', '3"', '4"', "非标"];
@@ -221,6 +223,7 @@ const MASK_HOLDER_NOTES =
 /* ============================ 状态 ============================ */
 
 const state = {
+  lang: "en",
   model: "maba6",
   selection: {},       // { sectionId: optionId | [optionId,...] }
   chucks: [],          // [{ waferSize, options:Set }]
@@ -233,6 +236,13 @@ const MODEL_SHORT = { mjb4: "MJB4", maba6: "MA6", maba8: "MA8", ma12: "MA12" };
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
+/* i18n 便捷函数：key 缺失时回退到数据里的原文 */
+const L = (key, fallback) => {
+  const v = t(key);
+  return v === key ? (fallback || "") : v;
+};
+const sub = (key) => subLabel(key);
+
 /* ============================ 渲染 ============================ */
 
 function renderModelSelector() {
@@ -242,9 +252,28 @@ function renderModelSelector() {
       <input type="radio" name="model" value="${m.id}" ${m.id === state.model ? "checked" : ""} />
       <div class="model-img"><img src="${m.img}" alt="${m.name}" loading="lazy" /></div>
       <div class="model-name">${m.name}</div>
-      <div class="model-sub">${m.en} · ${m.automation} · 晶圆 ${m.wafer}</div>
-      <span class="model-tag">${m.tag}</span>
+      <div class="model-sub">${L(`model.${m.id}.kind`, m.en)} · ${m.automation === "Manual" ? t("auto.manual") : t("auto.semi")} · ${t("model.wafer")} ${m.wafer}</div>
+      <span class="model-tag">${L(`model.${m.id}.tag`, m.tag)}</span>
     </label>`).join("");
+}
+
+function renderLangSwitch() {
+  const wrap = $("#lang-switch");
+  if (!wrap) return;
+  wrap.setAttribute("aria-label", t("lang.aria"));
+  wrap.innerHTML = LANGS.map((l) => `
+    <button type="button" class="lang-btn ${l.id === state.lang ? "active" : ""}" data-lang="${l.id}" title="${l.label}">${l.short}</button>
+  `).join("");
+}
+
+/* 应用静态文案（index.html 中带 data-i18n / data-i18n-html / data-i18n-ph / data-i18n-tip 的元素） */
+function applyStaticI18n() {
+  document.documentElement.lang = HTML_LANG[state.lang] || "en";
+  $$("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  $$("[data-i18n-html]").forEach((el) => { el.innerHTML = t(el.dataset.i18nHtml); });
+  $$("[data-i18n-ph]").forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
+  $$("[data-i18n-tip]").forEach((el) => { el.title = t(el.dataset.i18nTip); });
+  document.title = t("app.title");
 }
 
 function renderSections() {
@@ -276,19 +305,24 @@ function renderSections() {
     const notes = wrap.querySelector(`[data-notes="${id}"]`);
     if (notes) notes.classList.remove("hidden");
     const btn = wrap.querySelector(`[data-note-toggle="${id}"]`);
-    if (btn) { btn.classList.add("active"); btn.textContent = "收起说明"; }
+    if (btn) { btn.classList.add("active"); btn.textContent = t("note.hide"); }
   });
   updateAlignmentImage();
   renderExposureSchematic();
 }
 
+function hasNotes(secId) {
+  return !!(I18N.en[`sec.${secId}.notes`] || I18N.zh[`sec.${secId}.notes`] || secId === "exposure_area");
+}
+
 function sectionHeader(sec, idx) {
-  const hasNote = sec.notes || sec.id === "exposure_area";
-  const noteBtn = hasNote ? `<button type="button" class="note-toggle" data-note-toggle="${sec.id}">进一步了解</button>` : "";
+  const noteBtn = hasNotes(sec.id)
+    ? `<button type="button" class="note-toggle" data-note-toggle="${sec.id}">${t("note.show")}</button>` : "";
+  const titleKey = `sec.${sec.id}.title`;
   return `
     <div class="section-head">
       <span class="idx">${idx}</span>
-      <div><h3>${sec.zh}</h3><p class="en">${sec.en}</p></div>
+      <div><h3>${L(titleKey, sec.zh)}</h3><p class="en">${sub(titleKey)}</p></div>
       ${noteBtn}
     </div>`;
 }
@@ -301,10 +335,11 @@ function renderSection(sec, idx) {
   const opts = visibleOpts.map((o) => {
     const checked = isMulti ? (Array.isArray(cur) && cur.includes(o.id)) : cur === o.id;
     const disabled = o.disabledModels && o.disabledModels.includes(state.model);
+    const key = `opt.${sec.id}.${o.id}`;
     return `
       <label class="option ${checked ? "selected" : ""} ${disabled ? "disabled" : ""}">
         <input type="${sec.type}" name="${sec.id}" value="${o.id}" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""} />
-        <span class="option-label"><span class="zh">${o.zh}</span><span class="en">${o.en}</span></span>
+        <span class="option-label"><span class="zh">${L(key, o.zh)}</span><span class="en">${sub(key)}</span></span>
       </label>`;
   }).join("");
 
@@ -313,12 +348,13 @@ function renderSection(sec, idx) {
     <div class="exposure-wrap">
       <div class="exposure-schematic" data-exposure-schematic></div>
       <figure class="exposure-photo">
-        <img src="images/Exposure.png?v=20261109" alt="曝光范围示意图" loading="lazy" />
+        <img src="images/Exposure.png?v=20261109" alt="${t("svg.wafer")}" loading="lazy" />
       </figure>
     </div>` : "";
-  const noteContent = sec.id === "exposure_area" ? (sec.notes || "") + schematic
-    : sec.id === "alignment" ? (sec.notes || "") + gallery
-    : (sec.notes || "");
+  const baseNotes = L(`sec.${sec.id}.notes`, sec.notes || "");
+  const noteContent = sec.id === "exposure_area" ? baseNotes + schematic
+    : sec.id === "alignment" ? baseNotes + gallery
+    : baseNotes;
   const notes = noteContent ? `<div class="notes hidden" data-notes="${sec.id}">${noteContent}</div>` : "";
 
   return `
@@ -341,9 +377,9 @@ function renderChuckSection(idx) {
     let extra = "";
     if (isNonStd) {
       extra = `
-      <label class="chuck-nonstd">非标准晶圆夹具 Non-standard Chuck：
+      <label class="chuck-nonstd">${t("dyn.nonstd")}：
         <select data-action="chuck-nonstandard" data-i="${i}">
-          <option value="">— 标准（不选）—</option>
+          <option value="">${t("dyn.nonstdNone")}</option>
           ${presets.map((p) => `<option value="${p.id}" ${c.nonStandard === p.id ? "selected" : ""}>${nonStandardLabel(p, state.model)}</option>`).join("")}
         </select>
       </label>`;
@@ -352,10 +388,11 @@ function renderChuckSection(idx) {
       <div class="dyn-options">
       ${CHUCK_OPTIONS.map((o) => {
         const checked = c.options.has(o.id);
+        const key = `chuckopt.${o.id}`;
         return `
           <label class="option ${checked ? "selected" : ""}">
             <input type="checkbox" data-action="chuck-opt" data-i="${i}" value="${o.id}" ${checked ? "checked" : ""} />
-            <span class="option-label"><span class="zh">${o.zh}</span><span class="en">${o.en}</span></span>
+            <span class="option-label"><span class="zh">${L(key, o.zh)}</span><span class="en">${sub(key)}</span></span>
           </label>`;
       }).join("")}
       </div>`;
@@ -363,12 +400,12 @@ function renderChuckSection(idx) {
     return `
     <div class="dyn-row">
       <div class="dyn-row-head">
-        <span class="dyn-title">晶圆吸盘 Chuck #${i + 1}</span>
-        <button class="btn icon-btn" data-action="remove-chuck" data-i="${i}" title="删除">✕</button>
+        <span class="dyn-title">${t("dyn.chuckTitle", { n: i + 1 })}</span>
+        <button class="btn icon-btn" data-action="remove-chuck" data-i="${i}" title="${t("dyn.remove")}">✕</button>
       </div>
-      <label class="chuck-wafer">晶圆尺寸 Wafer Size：
+      <label class="chuck-wafer">${t("dyn.waferSize")}：
         <select data-action="chuck-wafer" data-i="${i}">
-          ${waferSizes.map((s) => `<option value="${s.replace(/"/g, "&quot;")}" ${c.waferSize === s ? "selected" : ""}>${s}</option>`).join("")}
+          ${waferSizes.map((s) => `<option value="${s.replace(/"/g, "&quot;")}" ${c.waferSize === s ? "selected" : ""}>${sizeLabel(s)}</option>`).join("")}
         </select>
       </label>
       ${extra}
@@ -377,14 +414,14 @@ function renderChuckSection(idx) {
 
   return `
     <section class="section" data-section="chuck">
-      ${dynamicHeader(idx, "晶圆吸盘", "Chuck and Mask Holder — Chuck", "chuck")}
-      <div class="notes hidden" data-notes="chuck">${CHUCK_NOTES}<figure class="note-img"><img src="images/Chuck.png?v=20261109" alt="晶圆吸盘 Chuck" loading="lazy" /></figure></div>
+      ${dynamicHeader(idx, "chuck", "chuck")}
+      <div class="notes hidden" data-notes="chuck">${t("notes.chuck")}<figure class="note-img"><img src="images/Chuck.png?v=20261109" alt="${t("sec.chuck.title")}" loading="lazy" /></figure></div>
       <div class="section-body">
         <div class="dyn-controls">
-          <button class="btn icon-btn" data-action="add-chuck" title="增加晶圆吸盘 Add Chuck">＋</button>
-          <button class="btn icon-btn" data-action="reset-chucks" title="重置 Reset">↻</button>
+          <button class="btn icon-btn" data-action="add-chuck" title="${t("dyn.addChuck")}">＋</button>
+          <button class="btn icon-btn" data-action="reset-chucks" title="${t("dyn.reset")}">↻</button>
         </div>
-        ${rows || '<p class="summary-empty">尚未添加晶圆吸盘，点击上方按钮添加。</p>'}
+        ${rows || `<p class="summary-empty">${t("dyn.noChuck")}</p>`}
       </div>
     </section>`;
 }
@@ -394,10 +431,10 @@ function renderMaskHolderSection(idx) {
   const rows = state.maskHolders.map((m, i) => `
     <div class="dyn-row">
       <div class="dyn-row-head">
-        <span class="dyn-title">掩模版架 Mask Holder #${i + 1}</span>
-        <button class="btn icon-btn" data-action="remove-maskholder" data-i="${i}" title="删除">✕</button>
+        <span class="dyn-title">${t("dyn.holderTitle", { n: i + 1 })}</span>
+        <button class="btn icon-btn" data-action="remove-maskholder" data-i="${i}" title="${t("dyn.remove")}">✕</button>
       </div>
-      <label class="chuck-wafer">曝光孔大小 Exposure Opening Size：
+      <label class="chuck-wafer">${t("dyn.openingSize")}：
         <select data-action="maskholder-size" data-i="${i}">
           ${sizes.map((s) => `<option value="${s.replace(/"/g, "&quot;")}" ${m.openingSize === s ? "selected" : ""}>${s}</option>`).join("")}
         </select>
@@ -409,10 +446,11 @@ function renderMaskHolderSection(idx) {
         const type = isOpening ? "radio" : "checkbox";
         const action = isOpening ? "maskholder-opening" : "maskholder-opt";
         const name = isOpening ? `maskholder-opening-${i}` : `maskholder-opt-${i}`;
+        const key = `mhopt.${o.id}`;
         return `
           <label class="option ${checked ? "selected" : ""}">
             <input type="${type}" data-action="${action}" data-i="${i}" name="${name}" value="${o.id}" ${checked ? "checked" : ""} />
-            <span class="option-label"><span class="zh">${o.zh}</span><span class="en">${o.en}</span></span>
+            <span class="option-label"><span class="zh">${L(key, o.zh)}</span><span class="en">${sub(key)}</span></span>
           </label>`;
       }).join("")}
       </div>
@@ -420,14 +458,14 @@ function renderMaskHolderSection(idx) {
 
   return `
     <section class="section" data-section="maskholder">
-      ${dynamicHeader(idx, "掩模版架", "Chuck and Mask Holder — Mask Holder", "maskholder")}
-      <div class="notes hidden" data-notes="maskholder">${MASK_HOLDER_NOTES}<figure class="note-img"><img src="images/MaskHolder.png?v=20261109" alt="掩模版架 Mask Holder" loading="lazy" /></figure></div>
+      ${dynamicHeader(idx, "maskholder", "maskholder")}
+      <div class="notes hidden" data-notes="maskholder">${t("notes.maskholder")}<figure class="note-img"><img src="images/MaskHolder.png?v=20261109" alt="${t("sec.maskholder.title")}" loading="lazy" /></figure></div>
       <div class="section-body">
         <div class="dyn-controls">
-          <button class="btn icon-btn" data-action="add-maskholder" title="增加掩模版架 Add Mask Holder">＋</button>
-          <button class="btn icon-btn" data-action="reset-maskholders" title="重置 Reset">↻</button>
+          <button class="btn icon-btn" data-action="add-maskholder" title="${t("dyn.addHolder")}">＋</button>
+          <button class="btn icon-btn" data-action="reset-maskholders" title="${t("dyn.reset")}">↻</button>
         </div>
-        ${rows || '<p class="summary-empty">尚未添加掩模版架，点击上方按钮添加。</p>'}
+        ${rows || `<p class="summary-empty">${t("dyn.noHolder")}</p>`}
       </div>
     </section>`;
 }
@@ -436,46 +474,48 @@ function renderBondAlignmentSection(idx) {
   const ba = state.bondAlignment;
   const active = !!ba;
   const addBtn = active
-    ? '<button type="button" class="btn icon-btn" data-action="reset-bond" title="移除键合对准功能">✕</button>'
-    : '<button type="button" class="btn icon-btn bond-add" data-action="add-bond" title="添加键合对准功能">＋</button>';
+    ? `<button type="button" class="btn icon-btn" data-action="reset-bond" title="${t("dyn.removeBond")}">✕</button>`
+    : `<button type="button" class="btn icon-btn bond-add" data-action="add-bond" title="${t("dyn.addBond")}">＋</button>`;
 
   const sizesHtml = active
     ? `<div class="dyn-options">${BOND_SIZES.map((o) => {
         const checked = ba.sizes.includes(o.id);
+        const key = `bond.size.${o.id}`;
         return `
           <label class="option ${checked ? "selected" : ""}">
             <input type="checkbox" data-action="bond-size" value="${o.id}" ${checked ? "checked" : ""} />
-            <span class="option-label"><span class="zh">${o.zh}</span><span class="en">${o.en}</span></span>
+            <span class="option-label"><span class="zh">${L(key, o.zh)}</span><span class="en">${sub(key)}</span></span>
           </label>`;
       }).join("")}
       </div>
       <div class="bond-direct">
         <label class="option ${ba.direct ? "selected" : ""}">
           <input type="checkbox" data-action="bond-direct" value="direct" ${ba.direct ? "checked" : ""} />
-          <span class="option-label"><span class="zh">在对准机上进行直接键合</span><span class="en">Direct Alignment on Bond Aligner</span></span>
+          <span class="option-label"><span class="zh">${t("dyn.bondDirect")}</span><span class="en">${sub("dyn.bondDirect")}</span></span>
         </label>
       </div>`
-    : '<p class="summary-empty">尚未添加键合对准功能，点击上方按钮添加。</p>';
+    : `<p class="summary-empty">${t("dyn.noBond")}</p>`;
 
   return `
     <section class="section bond-section ${active ? "" : "bond-disabled"}" data-section="bond_alignment">
       <div class="section-head">
         <span class="idx">${idx}</span>
         ${addBtn}
-        <div><h3>键合对准</h3><p class="en">Automatic Alignment</p></div>
-        <button type="button" class="note-toggle" data-note-toggle="bond_alignment">进一步了解</button>
+        <div><h3>${t("sec.bond_alignment.title")}</h3><p class="en">${sub("sec.bond_alignment.title")}</p></div>
+        <button type="button" class="note-toggle" data-note-toggle="bond_alignment">${t("note.show")}</button>
       </div>
-      <div class="notes hidden" data-notes="bond_alignment">${BOND_ALIGNMENT_NOTES}<figure class="note-img"><img src="images/BA.png?v=20261109" alt="键合对准 Bond Alignment" loading="lazy" /></figure></div>
+      <div class="notes hidden" data-notes="bond_alignment">${t("notes.bond")}<figure class="note-img"><img src="images/BA.png?v=20261109" alt="${t("sec.bond_alignment.title")}" loading="lazy" /></figure></div>
       <div class="section-body">${sizesHtml}</div>
     </section>`;
 }
 
-function dynamicHeader(idx, zh, en, noteId) {
+function dynamicHeader(idx, secId, noteId) {
+  const key = `sec.${secId}.title`;
   return `
     <div class="section-head">
       <span class="idx">${idx}</span>
-      <div><h3>${zh}</h3><p class="en">${en}</p></div>
-      <button type="button" class="note-toggle" data-note-toggle="${noteId}">进一步了解</button>
+      <div><h3>${t(key)}</h3><p class="en">${sub(key)}</p></div>
+      <button type="button" class="note-toggle" data-note-toggle="${noteId}">${t("note.show")}</button>
     </div>`;
 }
 
@@ -502,8 +542,9 @@ function updateAlignmentImage() {
   const imgs = (opt && opt.imgs) || [];
   if (!imgs.length) { gallery.innerHTML = ""; gallery.style.display = "none"; return; }
   gallery.style.display = "grid";
+  const alt = L(`opt.alignment.${opt.id}`, opt.zh);
   gallery.innerHTML = imgs.map((src) => `
-    <figure class="align-item"><img src="${src}?v=20261109" alt="${opt.zh}" loading="lazy" /></figure>`).join("");
+    <figure class="align-item"><img src="${src}?v=20261109" alt="${alt}" loading="lazy" /></figure>`).join("");
 }
 
 const WAFER_MM = { "4": 100, "6": 150, "8": 200, "12": 300 };
@@ -525,11 +566,11 @@ function renderExposureSchematic() {
   const round = /round$/.test(id);
   const size = id.replace(/round|sq/g, "");
   const mm = WAFER_MM[size] || "";
-  const shape = round ? "圆形" : "方形";
-  const dimension = round ? "直径" : "边长";
+  const shape = round ? t("svg.round") : t("svg.square");
+  const dimension = round ? t("svg.diameter") : t("svg.side");
   el.innerHTML = `
     <div class="schematic-figure">${exposureSchematicSVG(round, size)}</div>
-    <div class="schematic-label">${shape}曝光范围 · ${dimension} ${size}"（${mm} mm）</div>`;
+    <div class="schematic-label">${t("svg.caption", { shape, dim: dimension, size, mm })}</div>`;
   syncExposurePhotoHeight();
 }
 
@@ -566,7 +607,7 @@ function dimensionLine(x1, x2, yBase, label, clearance, direction = -1) {
 
 function exposureSchematicSVG(round, size) {
   const mm = WAFER_MM[size] || "";
-  const uvLabel = (y) => `<text x="130" y="${y}" text-anchor="middle" font-size="15" font-weight="700" fill="#7e22ce" stroke="#fff" stroke-width="4" paint-order="stroke">紫外光（UV）</text>`;
+  const uvLabel = (y) => `<text x="130" y="${y}" text-anchor="middle" font-size="15" font-weight="700" fill="#7e22ce" stroke="#fff" stroke-width="4" paint-order="stroke">${t("svg.uv")}</text>`;
   if (round) {
     const rx = SIZE_SCALE[size] || 60;
     const ry = Math.round(rx * 0.36);
@@ -575,18 +616,18 @@ function exposureSchematicSVG(round, size) {
     const left = cx - rx, right = cx + rx;
     const svgHeight = waferBottomY + ry + 46;
     return `
-    <svg viewBox="0 0 260 ${svgHeight}" role="img" aria-label="${size} 英寸圆形曝光范围与晶圆三维示意图，紫外光在上方并遮挡晶圆">
+    <svg viewBox="0 0 260 ${svgHeight}" role="img" aria-label="${t("svg.ariaRound", { size })}">
       <ellipse cx="${cx}" cy="${waferBottomY}" rx="${rx}" ry="${ry}" fill="#64748b"/>
       <path d="M${left} ${waferTopY} L${left} ${waferBottomY} A${rx} ${ry} 0 0 0 ${right} ${waferBottomY} L${right} ${waferTopY} A${rx} ${ry} 0 0 1 ${left} ${waferTopY} Z" fill="#94a3b8"/>
       <ellipse cx="${cx}" cy="${waferTopY}" rx="${rx}" ry="${ry}" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
-      <text x="${cx}" y="${waferBottomY + ry + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">晶圆</text>
+      <text x="${cx}" y="${waferBottomY + ry + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">${t("svg.wafer")}</text>
       <ellipse cx="${cx}" cy="${lightBottomY}" rx="${rx}" ry="${ry}" fill="#7e22ce"/>
       <path d="M${left} ${lightTopY} L${left} ${lightBottomY} A${rx} ${ry} 0 0 0 ${right} ${lightBottomY} L${right} ${lightTopY} A${rx} ${ry} 0 0 1 ${left} ${lightTopY} Z" fill="#a855f7"/>
       <ellipse cx="${cx}" cy="${lightTopY}" rx="${rx}" ry="${ry}" fill="#e9d5ff" stroke="#7e22ce" stroke-width="2"/>
       <ellipse cx="${cx}" cy="${lightTopY}" rx="${Math.round(rx * 0.62)}" ry="${Math.round(ry * 0.62)}" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="6 5"/>
       ${uvLabel(lightTopY - ry - 10)}
       <text x="${cx}" y="${lightTopY + 6}" text-anchor="middle" font-size="14" font-weight="700" fill="#6b21a8">${size}"</text>
-      ${dimensionLine(left, right, waferBottomY, `Ø ${mm} mm（${size}"）`, ry + 18, 1)}
+      ${dimensionLine(left, right, waferBottomY, t("svg.diameterLabel", { mm, size }), ry + 18, 1)}
     </svg>`;
   }
   const s = SIZE_SCALE[size] || 60;
@@ -602,11 +643,11 @@ function exposureSchematicSVG(round, size) {
   const innerFrontRightX = cx + innerS, innerFrontLeftX = innerFrontRightX - innerHalfW * 2;
   const svgHeight = waferFrontY + waferH + 46;
   return `
-    <svg viewBox="0 0 260 ${svgHeight}" role="img" aria-label="${size} 英寸方形曝光范围（边长）与晶圆三维示意图，紫外光在上方并遮挡晶圆">
+    <svg viewBox="0 0 260 ${svgHeight}" role="img" aria-label="${t("svg.ariaSquare", { size })}">
       <path d="M${backRightX} ${waferBackY} L${frontRightX} ${waferFrontY} L${frontRightX} ${waferFrontY + waferH} L${backRightX} ${waferBackY + waferH} Z" fill="#94a3b8"/>
       <path d="M${frontLeftX} ${waferFrontY} L${frontRightX} ${waferFrontY} L${frontRightX} ${waferFrontY + waferH} L${frontLeftX} ${waferFrontY + waferH} Z" fill="#cbd5e1"/>
       <path d="M${backLeftX} ${waferBackY} L${backRightX} ${waferBackY} L${frontRightX} ${waferFrontY} L${frontLeftX} ${waferFrontY} Z" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
-      <text x="${cx}" y="${waferFrontY + 16}" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">晶圆</text>
+      <text x="${cx}" y="${waferFrontY + 16}" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">${t("svg.wafer")}</text>
       <path d="M${backRightX} ${lightBackY} L${frontRightX} ${lightFrontY} L${frontRightX} ${lightFrontY + lightH} L${backRightX} ${lightBackY + lightH} Z" fill="#9333ea"/>
       <path d="M${frontLeftX} ${lightFrontY} L${frontRightX} ${lightFrontY} L${frontRightX} ${lightFrontY + lightH} L${frontLeftX} ${lightFrontY + lightH} Z" fill="#a855f7"/>
       <path d="M${backLeftX} ${lightBackY} L${backRightX} ${lightBackY} L${frontRightX} ${lightFrontY} L${frontLeftX} ${lightFrontY} Z" fill="#e9d5ff" stroke="#7e22ce" stroke-width="2"/>
@@ -614,7 +655,7 @@ function exposureSchematicSVG(round, size) {
       <path d="M${innerBackLeftX} ${lightTopY - innerHh} L${innerBackRightX} ${lightTopY - innerHh} L${innerFrontRightX} ${lightTopY + innerHh} L${innerFrontLeftX} ${lightTopY + innerHh} Z" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="6 5"/>
       ${uvLabel(lightBackY - 10)}
       <text x="${cx}" y="${lightTopY + 5}" text-anchor="middle" font-size="14" font-weight="700" fill="#6b21a8">${size}"</text>
-      ${dimensionLine(frontLeftX, frontRightX, waferFrontY + waferH, `边长 ${mm} mm（${size}"）`, 18, 1)}
+      ${dimensionLine(frontLeftX, frontRightX, waferFrontY + waferH, t("svg.sideLabel", { mm, size }), 18, 1)}
     </svg>`;
 }
 
@@ -663,7 +704,7 @@ function onSectionsClick(e) {
     if (!notes) return;
     const nowHidden = notes.classList.toggle("hidden");
     noteBtn.classList.toggle("active", !nowHidden);
-    noteBtn.textContent = nowHidden ? "进一步了解" : "收起说明";
+    noteBtn.textContent = nowHidden ? t("note.show") : t("note.hide");
     return;
   }
   const btn = e.target.closest("[data-action]");
@@ -735,54 +776,66 @@ function onModelClick(e) {
 function optionLabel(secId, optId) {
   const sec = SECTIONS.find((s) => s.id === secId);
   const o = sec && sec.options.find((x) => x.id === optId);
-  return o ? o.zh : optId;
+  return L(`opt.${secId}.${optId}`, o ? o.zh : optId);
 }
+
+const listSep = () => (state.lang === "zh" || state.lang === "ja" ? "、" : ", ");
 
 function updateSummary() {
   const list = $("#summary-list");
   const items = [];
   const model = MODELS.find((m) => m.id === state.model);
-  items.push({ key: "设备型号", val: model.name });
+  items.push({ key: t("summary.model"), val: model.name });
 
   SECTIONS.forEach((sec) => {
     if (sec.visible && !sec.visible(state.selection)) return;
     const cur = state.selection[sec.id];
+    const key = L(`sec.${sec.id}.title`, sec.zh);
     if (sec.type === "checkbox") {
       if (Array.isArray(cur) && cur.length) {
-        items.push({ key: sec.zh, val: cur.map((id) => optionLabel(sec.id, id)).join("、") });
+        items.push({ key, val: cur.map((id) => optionLabel(sec.id, id)).join(listSep()) });
       }
     } else if (cur) {
-      items.push({ key: sec.zh, val: optionLabel(sec.id, cur) });
+      items.push({ key, val: optionLabel(sec.id, cur) });
     }
   });
 
   state.chucks.forEach((c, i) => {
     let parts;
     if (c.waferSize === "非标") {
-      parts = ["非标"];
+      parts = [t("size.nonstd")];
       const preset = nonStandardChucks(state.model).find((p) => p.id === c.nonStandard);
-      parts.push(preset ? nonStandardLabel(preset, state.model) : "未指定非标夹具");
+      parts.push(preset ? nonStandardLabel(preset, state.model) : t("dyn.unspecifiedNonStd"));
     } else {
-      const opts = [...c.options].map((id) => (CHUCK_OPTIONS.find((o) => o.id === id) || {}).zh || id);
-      parts = [c.waferSize, ...opts];
+      const opts = [...c.options].map((id) => {
+        const o = CHUCK_OPTIONS.find((x) => x.id === id);
+        return L(`chuckopt.${id}`, o ? o.zh : id);
+      });
+      parts = [sizeLabel(c.waferSize), ...opts];
     }
-    items.push({ key: `Chuck #${i + 1}`, val: parts.join(" · ") });
+    items.push({ key: t("dyn.chuckKey", { n: i + 1 }), val: parts.join(" · ") });
   });
   state.maskHolders.forEach((m, i) => {
-    const opts = [...m.options].map((id) => (MASK_HOLDER_OPTIONS.find((o) => o.id === id) || {}).zh || id);
-    items.push({ key: `Mask Holder #${i + 1}`, val: [m.openingSize, ...opts].join(" · ") || "未指定" });
+    const opts = [...m.options].map((id) => {
+      const o = MASK_HOLDER_OPTIONS.find((x) => x.id === id);
+      return L(`mhopt.${id}`, o ? o.zh : id);
+    });
+    items.push({ key: t("dyn.holderKey", { n: i + 1 }), val: [sizeLabel(m.openingSize), ...opts].join(" · ") || t("dyn.unspecified") });
   });
 
   if (state.bondAlignment) {
-    const sizes = state.bondAlignment.sizes.map((id) => (BOND_SIZES.find((o) => o.id === id) || {}).zh || id);
+    const sizes = state.bondAlignment.sizes.map((id) => {
+      const o = BOND_SIZES.find((x) => x.id === id);
+      return L(`bond.size.${id}`, o ? o.zh : id);
+    });
     const parts = [...sizes];
-    if (state.bondAlignment.direct) parts.push("在对准机上进行直接键合");
-    items.push({ key: "键合对准", val: parts.join(" · ") || "未指定" });
+    if (state.bondAlignment.direct) parts.push(t("dyn.bondDirect"));
+    items.push({ key: t("dyn.bondKey"), val: parts.join(" · ") || t("dyn.unspecified") });
   }
 
   list.innerHTML = items.length
     ? items.map((it) => `<div class="summary-item"><div class="s-key">${it.key}</div><div class="s-val">${it.val}</div></div>`).join("")
-    : '<p class="summary-empty">尚未选择任何配置项</p>';
+    : `<p class="summary-empty">${t("summary.empty")}</p>`;
   $("#summary-count").textContent = items.length;
   updateSummaryMeta();
 }
@@ -792,9 +845,9 @@ function updateSummaryMeta() {
   const o = $("#owner-name").value.trim();
   const d = $("#quote-date").value;
   const parts = [];
-  if (c) parts.push(`客户：${c}`);
-  if (o) parts.push(`负责人：${o}`);
-  if (d) parts.push(`日期：${d}`);
+  if (c) parts.push(t("meta.customer", { v: c }));
+  if (o) parts.push(t("meta.owner", { v: o }));
+  if (d) parts.push(t("meta.date", { v: d }));
   $("#summary-customer").textContent = parts.join("  ·  ");
 }
 
@@ -856,17 +909,17 @@ function validateBeforeSave() {
   const markSection = (id) => { const el = document.querySelector(`[data-section="${id}"]`); if (el) el.classList.add("section-error"); };
 
   const missing = [];
-  if (!$("#customer-name").value.trim()) { missing.push("客户名称"); markField("#customer-name"); }
-  if (!$("#owner-name").value.trim()) { missing.push("负责人"); markField("#owner-name"); }
-  if (!state.selection.exposure_area) { missing.push("曝光范围"); markSection("exposure_area"); }
-  if (!state.selection.alignment) { missing.push("对准方式"); markSection("alignment"); }
+  if (!$("#customer-name").value.trim()) { missing.push(t("val.customer")); markField("#customer-name"); }
+  if (!$("#owner-name").value.trim()) { missing.push(t("val.owner")); markField("#owner-name"); }
+  if (!state.selection.exposure_area) { missing.push(t("val.exposure")); markSection("exposure_area"); }
+  if (!state.selection.alignment) { missing.push(t("val.alignment")); markSection("alignment"); }
   if (!state.chucks.length && !state.maskHolders.length) {
-    missing.push("晶圆吸盘或掩模版（至少一个）");
+    missing.push(t("val.devices"));
     markSection("chuck");
     markSection("maskholder");
   }
   if (missing.length) {
-    alert("保存前请先完成以下必填项：\n\n· " + missing.join("\n· "));
+    alert(t("val.title") + "\n\n· " + missing.join("\n· "));
     return false;
   }
   return true;
@@ -958,14 +1011,36 @@ function showQuotation() {
 
 /* ============================ 初始化 ============================ */
 
+function setLang(id) {
+  state.lang = I18N[id] ? id : "en";
+  setCurrentLang(state.lang);
+  try { localStorage.setItem("suss-lang", state.lang); } catch (err) { /* 忽略隐私模式下的存储异常 */ }
+  applyStaticI18n();
+  renderLangSwitch();
+  renderModelSelector();
+  renderSections();
+  updateSummary();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  let saved = "en";
+  try { saved = localStorage.getItem("suss-lang") || "en"; } catch (err) { /* 忽略 */ }
+  state.lang = I18N[saved] ? saved : "en";
+  setCurrentLang(state.lang);
+
   $("#quote-date").valueAsDate = new Date();
 
+  applyStaticI18n();
+  renderLangSwitch();
   renderModelSelector();
   renderSections();
   updateSummary();
 
   // 事件委托：只绑定一次
+  $("#lang-switch").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-lang]");
+    if (btn) setLang(btn.dataset.lang);
+  });
   $("#model-selector").addEventListener("click", onModelClick);
   $("#sections").addEventListener("change", onSectionsChange);
   $("#sections").addEventListener("click", onSectionsClick);
@@ -984,7 +1059,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      try { deserializeState(JSON.parse(reader.result)); } catch (err) { alert("导入失败：JSON 格式错误"); }
+      try { deserializeState(JSON.parse(reader.result)); } catch (err) { alert(t("err.import")); }
     };
     reader.readAsText(file);
     e.target.value = "";

@@ -1,33 +1,37 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0" />
-  <title>SUSS 光刻机配置器 · MJB4 / MA6 / MA8 / MA12</title>
-  <meta name="description" content="SUSS MicroTec MJB4、MA/BA6 Gen4、MA/BA8 Gen4 与 MA12 Gen3 掩模/键合对准机配置工具" />
-  <link rel="stylesheet" href="css/style.css?v=20261109-header21" />
+  <title data-i18n="app.title">SUSS Mask &amp; Bond Aligner Configurator · MJB4 / MA6 / MA8 / MA12</title>
+  <meta name="description" content="SUSS MicroTec MJB4, MA/BA6 Gen4, MA/BA8 Gen4 and MA12 Gen3 mask / bond aligner configuration tool" />
+  <link rel="stylesheet" href="css/style.css?v=20261117-i18n2" />
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <img class="brand-logo" src="images/Company.png" alt="公司 Logo" />
+      <img class="brand-logo" src="images/Company.png" alt="Logo" />
       <div class="brand-text">
-        <h1>掩模 / 键合对准机配置器</h1>
-        <p>Mask &amp; Bond Aligner Configurator — MJB4 · MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3</p>
+        <h1 data-i18n="brand.title">Mask &amp; Bond Aligner Configurator</h1>
+        <p data-i18n="brand.subtitle">MJB4 · MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3</p>
       </div>
     </div>
-    <div class="header-meta">
-      <label>客户名称 <input type="text" id="customer-name" placeholder="Customer Name" /></label>
-      <label>负责人 <input type="text" id="owner-name" placeholder="Owner Name" /></label>
-      <label>日期 <input type="date" id="quote-date" /></label>
+
+    <div class="header-right">
+      <div class="lang-switch" id="lang-switch" role="group" aria-label="Language"></div>
+      <div class="header-meta">
+        <label><span data-i18n="field.customer">Customer</span><input type="text" id="customer-name" data-i18n-ph="ph.customer" placeholder="Customer Name" /></label>
+        <label><span data-i18n="field.owner">Owner</span><input type="text" id="owner-name" data-i18n-ph="ph.owner" placeholder="Owner Name" /></label>
+        <label><span data-i18n="field.date">Date</span><input type="date" id="quote-date" /></label>
+      </div>
     </div>
   </header>
 
   <main class="layout">
     <section class="config-panel">
       <div class="panel-head">
-        <h2>设备型号</h2>
-        <p>选择目标平台，曝光范围与选项将随之适配</p>
+        <h2 data-i18n="panel.title">Equipment Model</h2>
+        <p data-i18n="panel.sub">Select a platform — exposure range and options adapt accordingly</p>
       </div>
       <div class="model-selector" id="model-selector">
         <!-- JS 渲染型号选择 -->
@@ -38,57 +42,55 @@
       </div>
 
       <section class="about">
-        <h2>关于 SUSS MicroTec</h2>
-        <p>
-          SUSS MicroTec 拥有超过 75 年工程经验，是半导体及相关市场中先进后端与光掩模解决方案的领先供应商，
-          产品覆盖成像（光刻 / 掩模对准）、涂胶、键合与光掩模等多个领域。
+        <h2 data-i18n="about.title">About SUSS MicroTec</h2>
+        <p data-i18n-html="about.p1">
+          With more than 75 years of engineering experience, SUSS MicroTec is a leading supplier of advanced back-end
+          and photomask solutions for the semiconductor and related markets.
         </p>
-        <p>
-          MA/BA Gen4 系列为半自动掩模 / 键合对准平台，配备 MO Exposure Optics<sup>®</sup> 远心照明，
-          分辨率可达 <strong>0.8 µm</strong>（硬 / 软 / 真空接触模式）；可选 DirectAlign<sup>®</sup> 技术实现
-          <strong>0.5 µm</strong> 套刻精度，支持正面 (TSA)、背面 (BSA) 与红外 (IR) 对准。
-          典型应用：先进封装、MEMS/NEMS、3D 集成、化合物半导体、LED、微光学、AR 与光电子器件。
+        <p data-i18n-html="about.p2">
+          The MA/BA Gen4 series is a semi-automated mask / bond aligner platform with MO Exposure Optics
+          telecentric illumination.
         </p>
         <p class="about-sources">
-          数据来源与图片版权：SUSS MicroTec 官方网站。
-          <a href="https://www.suss.com" target="_blank" rel="noopener">下载产品手册（PDF）</a>
+          <span data-i18n="about.src">Data source and image copyright: SUSS MicroTec official website.</span>
+          <a href="https://www.suss.com" target="_blank" rel="noopener" data-i18n="about.link">Download product brochure (PDF)</a>
         </p>
       </section>
-
     </section>
 
     <aside class="summary">
       <div class="summary-toolbar">
-        <button class="btn" id="btn-import" title="导入配置 (JSON)">导入 Import</button>
-        <button class="btn" id="btn-reset" title="清空所有设置">重置 Reset All</button>
+        <button class="btn" id="btn-import" data-i18n-tip="tip.import"><span data-i18n="btn.import">Import</span></button>
+        <button class="btn" id="btn-reset" data-i18n-tip="tip.reset"><span data-i18n="btn.reset">Reset All</span></button>
         <input type="file" id="import-file" accept="application/json" hidden />
       </div>
       <div class="summary-head">
-        <h2>已选配置</h2>
+        <h2 data-i18n="summary.title">Selected Configuration</h2>
         <span id="summary-count" class="badge">0</span>
       </div>
       <div id="summary-list" class="summary-list">
-        <p class="summary-empty">尚未选择任何配置项</p>
+        <p class="summary-empty" data-i18n="summary.empty">No configuration selected yet</p>
       </div>
       <div class="summary-foot">
         <div id="summary-customer" class="summary-meta"></div>
       </div>
       <div class="summary-actions">
-        <button class="btn" id="btn-print">打印为 PDF</button>
-        <button class="btn" id="btn-save-json">保存为 JSON</button>
+        <button class="btn" id="btn-print" data-i18n="btn.print">Print to PDF</button>
+        <button class="btn" id="btn-save-json" data-i18n="btn.json">Save as JSON</button>
       </div>
     </aside>
   </main>
 
   <footer class="footer">
     <p>
-      产品信息来源：
-      <a href="https://www.suss.com/en/products-solutions/mask-aligner/ma-ba-gen4-series" target="_blank" rel="noopener">MA/BA Gen4 Series — SUSS MicroTec</a>
+      <span data-i18n="footer.src">Product information:</span>
+      <a href="https://www.suss.com/en/products-solutions/mask-aligner/ma-ba-gen4-series" target="_blank" rel="noopener" data-i18n="footer.link1">MA/BA Gen4 Series — SUSS MicroTec</a>
       ·
-      <a href="https://www.suss.com/en/products-solutions/imaging-solutions/mask-alignment" target="_blank" rel="noopener">Mask Alignment — SUSS MicroTec</a>
+      <a href="https://www.suss.com/en/products-solutions/imaging-solutions/mask-alignment" target="_blank" rel="noopener" data-i18n="footer.link2">Mask Alignment — SUSS MicroTec</a>
     </p>
   </footer>
 
-  <script src="js/app.js?v=20261108-uv41"></script>
+  <script src="js/i18n.js?v=20261117-i18n2"></script>
+  <script src="js/app.js?v=20261117-i18n2"></script>
 </body>
 </html>
