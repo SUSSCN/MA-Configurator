@@ -6,7 +6,6 @@
  * ========================================================================= */
 
 const MODELS = [
-  { id: "mjb4", name: "MJB4", en: "Mask Aligner", automation: "Manual", wafer: '4"', tag: "手动", img: "images/MJB4.png" },
   { id: "maba6", name: "MA/BA6 Gen4", en: "Mask & Bond Aligner", automation: "Semi-Automated", wafer: '6"', tag: "标准 · 半自动", img: "images/MA68Gen4.png" },
   { id: "maba8", name: "MA/BA8 Gen4", en: "Mask & Bond Aligner", automation: "Semi-Automated", wafer: '8"', tag: "标准 · 半自动", img: "images/MA68Gen4.png" },
   { id: "ma12", name: "MA12 Gen3", en: "Mask Aligner", automation: "Semi-Automated", wafer: '12"', tag: "200 / 300 mm · 半自动", img: "images/MA12.png" },
@@ -18,9 +17,8 @@ const SECTIONS = [
     notes:
       "a. 曝光范围指单次曝光所能覆盖的晶圆区域尺寸，应与晶圆尺寸及掩模版尺寸相匹配。<br/>" +
       "b. 圆形（Round）曝光适合大多数圆形晶圆，光斑为圆形；方形（Squared）曝光适合方形基片或需整片曝光的大面积图形，光斑为方形。<br/>" +
-      "c. 不同机型支持的曝光范围不同：MJB4 支持 4″，MA/BA6 Gen4 支持 6″，MA/BA8 Gen4 支持 8″，MA12 Gen3 支持 12″。",
+      "c. 不同机型支持的曝光范围不同：MA/BA6 Gen4 支持 6″，MA/BA8 Gen4 支持 8″，MA12 Gen3 支持 12″。",
     options: [
-      { id: "4round", zh: "4英寸圆形", en: '4" Round', models: ["mjb4"] },
       { id: "6round", zh: "6英寸圆形", en: '6" Round', models: ["maba6"] },
       { id: "6sq", zh: "6英寸方形", en: '6" Squared', models: ["maba6"] },
       { id: "8round", zh: "8英寸圆形", en: '8" Round', models: ["maba8"] },
@@ -60,39 +58,14 @@ const SECTIONS = [
   {
     id: "light_source", zh: "紫外光源", en: "UV Light Source", type: "radio",
     notes:
-      "a. LED 灯非曝光时关闭，约 5000 h 后光强衰减至 70%，期望寿命 20000 h。<br/>" +
-      "b. 高压汞灯非曝光时也需开启，开机寿命约 600 h。<br/>" +
-      "c. LED 将取代汞灯成为主流，SUSS 提供汞灯转 LED 技术支持。",
+      "a. 采用 LED 光源，非曝光时关闭，约 5000 h 后光强衰减至 70%，期望寿命 20000 h。<br/>" +
+      "b. LED 无需预热，光强稳定，维护成本低。",
     options: [
       { id: "led", zh: "LED", en: "LED Light Source" },
-      { id: "hg", zh: "HG 高压汞灯", en: "High-pressure Mercury Lamp", disabledModels: ["mjb4"] },
-    ],
-  },
-  {
-    id: "uv_spectrum", zh: "高压汞灯紫外波长范围", en: "UV Spectrum", type: "radio",
-    visible: (sel) => sel.light_source === "hg",
-    options: [
-      { id: "uv400", zh: "UV400", en: "UV400" },
-      { id: "uv400_uv300", zh: "UV400 + UV300", en: "UV400 + UV300" },
-    ],
-  },
-  {
-    id: "filter", zh: "滤镜", en: "Filter", type: "checkbox",
-    visible: (sel) => sel.light_source === "hg",
-    options: [
-      { id: "i_line", zh: "i-Line Filter", en: "i-Line Filter" },
-      { id: "g_line", zh: "g-Line Filter", en: "g-Line Filter" },
-      { id: "h_line", zh: "h-Line Filter", en: "h-Line Filter" },
-      { id: "gh_line", zh: "gh-Line Filter", en: "gh-Line Filter" },
-      { id: "t25", zh: "25% Transmission Filter", en: "25% Transmission Filter" },
-      { id: "t33", zh: "33% Transmission Filter", en: "33% Transmission Filter" },
-      { id: "t50", zh: "50% Transmission Filter", en: "50% Transmission Filter" },
-      { id: "t70", zh: "70% Transmission Filter", en: "70% Transmission Filter" },
     ],
   },
   {
     id: "exposure_mode", zh: "曝光能量控制", en: "Exposure Dosage Control Mode", type: "radio",
-    visible: () => state.model !== "mjb4",
     notes:
       "CPC 即恒定功率模式，通过曝光时间控制曝光量；CDC 即恒定剂量模式，可直接输入剂量，使用更方便。CDC 包含 CPC 功能。建议研发单位仅配置 CPC 模式。" +
       '<figure class="note-img"><img src="images/CDC.png?v=20261109" alt="曝光能量控制 CPC / CDC" loading="lazy" /></figure>',
@@ -103,7 +76,6 @@ const SECTIONS = [
   },
   {
     id: "auto_alignment", zh: "对准自动化", en: "Automatic Alignment", type: "radio",
-    visible: () => state.model !== "mjb4",
     notes:
       "MA6 / MA8 可配自动对位 Auto Alignment（对位精度 ±0.5 µm for TSA），或超高精度 Direct Alignment（对位精度 ±0.25 µm）。<br/>" +
       "下图为超高精度直接对准（DirectAlign®）的解释。" +
@@ -165,26 +137,14 @@ const NON_STANDARD_CHUCK_MA = [
   { id: "ma-17", sizes: '20×20/30×30/40×40 mm', bsa: true, vacuum: false, teflon: false },
 ];
 
-const NON_STANDARD_CHUCK_MJB4 = [
-  { id: "mjb4-1", sizes: '5×5/10×10 mm', bsa: false, vacuum: true, teflon: false },
-  { id: "mjb4-2", sizes: '5×5/10×10 mm', bsa: false, vacuum: true, teflon: true },
-  { id: "mjb4-3", sizes: '10×10/20×20 mm', bsa: false, vacuum: true, teflon: false },
-  { id: "mjb4-4", sizes: '10×10/20×20 mm', bsa: false, vacuum: true, teflon: true },
-  { id: "mjb4-5", sizes: '5×5/10×10 mm', bsa: false, vacuum: false, teflon: false },
-  { id: "mjb4-6", sizes: '5×5/10×10 mm', bsa: false, vacuum: false, teflon: true },
-  { id: "mjb4-7", sizes: '10×10/20×20 mm', bsa: false, vacuum: false, teflon: false },
-  { id: "mjb4-8", sizes: '10×10/20×20 mm', bsa: false, vacuum: false, teflon: true },
-];
-
 function nonStandardChucks(model) {
-  if (model === "mjb4") return NON_STANDARD_CHUCK_MJB4;
   if (model === "maba6" || model === "maba8") return NON_STANDARD_CHUCK_MA;
   return [];
 }
 
-function nonStandardLabel(c, model) {
+function nonStandardLabel(c) {
   const parts = [c.sizes];
-  if (model !== "mjb4") parts.push(t(c.bsa ? "chuck.bsa.yes" : "chuck.bsa.no"));
+  parts.push(t(c.bsa ? "chuck.bsa.yes" : "chuck.bsa.no"));
   parts.push(t(c.vacuum ? "chuck.vac.yes" : "chuck.vac.no"));
   parts.push(t(c.teflon ? "chuck.teflon.yes" : "chuck.teflon.no"));
   return parts.join(" · ");
@@ -193,7 +153,6 @@ function nonStandardLabel(c, model) {
 const sizeLabel = (s) => (s === "非标" ? t("size.nonstd") : s);
 
 function chuckWaferSizes(model) {
-  if (model === "mjb4") return ['2"', '3"', '4"', "非标"];
   if (model === "ma12") return ['6"', '8"', '12"', "非标"];
   return ['2"', '3"', '4"', '6"', '8"', "非标"];
 }
@@ -225,13 +184,13 @@ const MASK_HOLDER_NOTES =
 const state = {
   lang: "en",
   model: "maba6",
-  selection: {},       // { sectionId: optionId | [optionId,...] }
+  selection: { light_source: "led" }, // { sectionId: optionId | [optionId,...] }
   chucks: [],          // [{ waferSize, options:Set }]
   maskHolders: [],     // [{ options:Set }]
   bondAlignment: null, // null 或 { sizes:[], direct:false }
 };
 
-const MODEL_SHORT = { mjb4: "MJB4", maba6: "MA6", maba8: "MA8", ma12: "MA12" };
+const MODEL_SHORT = { maba6: "MA6", maba8: "MA8", ma12: "MA12" };
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -693,7 +652,6 @@ function onSectionsChange(e) {
   updateSummary();
   if (sec.id === "alignment") updateAlignmentImage();
   if (sec.id === "exposure_area") renderExposureSchematic();
-  if (sec.id === "light_source") renderSections();
 }
 
 function onSectionsClick(e) {
@@ -765,7 +723,6 @@ function onModelClick(e) {
     if (!mhSizes.includes(m.openingSize)) m.openingSize = defaultChuckWafer(state.model);
   });
   cleanSelectionForModel();
-  if (state.model === "mjb4") { state.selection.light_source = "led"; state.selection.alignment = "tsa"; state.selection.exposure_area = "4round"; }
   renderModelSelector();
   renderSections();
   updateSummary();
@@ -873,8 +830,8 @@ function deserializeState(data) {
   $("#owner-name").value = data.owner || "";
   $("#quote-date").value = data.date || "";
   state.selection = data.selection || {};
+  if (!state.selection.light_source) state.selection.light_source = "led";
   cleanSelectionForModel();
-  if (state.model === "mjb4") { state.selection.light_source = "led"; state.selection.alignment = "tsa"; state.selection.exposure_area = "4round"; }
   state.chucks = (data.chucks || []).map((c) => {
     const sizes = chuckWaferSizes(state.model);
     const presets = nonStandardChucks(state.model);
@@ -944,7 +901,7 @@ function printConfig() {
 
 function resetAll() {
   state.model = "maba6";
-  state.selection = {};
+  state.selection = { light_source: "led" };
   state.chucks = [];
   state.maskHolders = [];
   state.bondAlignment = null;

@@ -16,9 +16,9 @@ const HTML_LANG = { en: "en", zh: "zh-CN", de: "de", ja: "ja", ko: "ko" };
 
 const I18N = {
   en: {
-    "app.title": "SUSS Mask & Bond Aligner Configurator · MJB4 / MA6 / MA8 / MA12",
+    "app.title": "SUSS Mask & Bond Aligner Configurator · MA6 / MA8 / MA12",
     "brand.title": "Mask & Bond Aligner Configurator",
-    "brand.subtitle": "MJB4 · MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3",
+    "brand.subtitle": "MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3",
     "field.customer": "Customer",
     "field.owner": "Owner",
     "field.date": "Date",
@@ -51,8 +51,6 @@ const I18N = {
     "model.wafer": "Wafer",
     "auto.manual": "Manual",
     "auto.semi": "Semi-Automated",
-    "model.mjb4.kind": "Mask Aligner",
-    "model.mjb4.tag": "Manual",
     "model.maba6.kind": "Mask & Bond Aligner",
     "model.maba6.tag": "Standard · Semi-Automated",
     "model.maba8.kind": "Mask & Bond Aligner",
@@ -64,7 +62,7 @@ const I18N = {
     "sec.exposure_area.notes":
       "a. The exposure area is the wafer area covered by a single exposure and should match both wafer and mask size.<br/>" +
       "b. Round exposure suits most round wafers; squared exposure suits square substrates or full-field exposure of large patterns.<br/>" +
-      "c. Supported ranges differ by model: MJB4 4″, MA/BA6 Gen4 6″, MA/BA8 Gen4 8″, MA12 Gen3 12″.",
+      "c. Supported ranges differ by model: MA/BA6 Gen4 6″, MA/BA8 Gen4 8″, MA12 Gen3 12″.",
     "sec.alignment.title": "Alignment Type",
     "sec.alignment.notes":
       "a. Three alignment modes are available: TSA (top side), BSA (bottom side) and IR (infrared).<br/>" +
@@ -78,10 +76,7 @@ const I18N = {
     "sec.light_source.title": "UV Light Source",
     "sec.light_source.notes":
       "a. The LED is off when not exposing; intensity drops to 70% after about 5000 h, expected lifetime 20000 h.<br/>" +
-      "b. The high-pressure mercury lamp must stay on even when not exposing; lamp lifetime is about 600 h.<br/>" +
-      "c. LED is replacing mercury lamps as the mainstream; SUSS offers mercury-to-LED conversion support.",
-    "sec.uv_spectrum.title": "UV Spectrum (Mercury Lamp)",
-    "sec.filter.title": "Filter",
+      "b. LED requires no warm-up and delivers stable intensity with low maintenance.",
     "sec.exposure_mode.title": "Exposure Dosage Control Mode",
     "sec.exposure_mode.notes":
       "CPC is constant power mode, controlling the dose via exposure time; CDC is constant dose mode, where the dose is entered directly and operation is more convenient. CDC includes CPC functionality. For R&amp;D units we recommend configuring CPC only." +
@@ -96,7 +91,6 @@ const I18N = {
     "sec.maskholder.title": "Mask Holder",
     "sec.bond_alignment.title": "Bond Alignment",
 
-    "opt.exposure_area.4round": '4″ Round',
     "opt.exposure_area.6round": '6″ Round',
     "opt.exposure_area.6sq": '6″ Squared',
     "opt.exposure_area.8round": '8″ Round',
@@ -117,19 +111,6 @@ const I18N = {
     "opt.tsa_objective.7_2x": "7.2X Offset",
 
     "opt.light_source.led": "LED",
-    "opt.light_source.hg": "HG High-pressure Mercury Lamp",
-
-    "opt.uv_spectrum.uv400": "UV400",
-    "opt.uv_spectrum.uv400_uv300": "UV400 + UV300",
-
-    "opt.filter.i_line": "i-Line Filter",
-    "opt.filter.g_line": "g-Line Filter",
-    "opt.filter.h_line": "h-Line Filter",
-    "opt.filter.gh_line": "gh-Line Filter",
-    "opt.filter.t25": "25% Transmission Filter",
-    "opt.filter.t33": "33% Transmission Filter",
-    "opt.filter.t50": "50% Transmission Filter",
-    "opt.filter.t70": "70% Transmission Filter",
 
     "opt.exposure_mode.cpc": "CPC — Constant Power Mode (exposure time)",
     "opt.exposure_mode.cdc": "CDC — Constant Dose Mode (direct dose)",
@@ -226,9 +207,9 @@ const I18N = {
   },
 
   zh: {
-    "app.title": "SUSS 掩模 / 键合对准机配置器 · MJB4 / MA6 / MA8 / MA12",
+    "app.title": "SUSS 掩模 / 键合对准机配置器 · MA6 / MA8 / MA12",
     "brand.title": "掩模 / 键合对准机配置器",
-    "brand.subtitle": "MJB4 · MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3",
+    "brand.subtitle": "MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3",
     "field.customer": "客户名称",
     "field.owner": "负责人",
     "field.date": "日期",
@@ -261,8 +242,6 @@ const I18N = {
     "model.wafer": "晶圆",
     "auto.manual": "手动",
     "auto.semi": "半自动",
-    "model.mjb4.kind": "掩模对准机",
-    "model.mjb4.tag": "手动",
     "model.maba6.kind": "掩模 / 键合对准机",
     "model.maba6.tag": "标准 · 半自动",
     "model.maba8.kind": "掩模 / 键合对准机",
@@ -274,7 +253,7 @@ const I18N = {
     "sec.exposure_area.notes":
       "a. 曝光范围指单次曝光所能覆盖的晶圆区域尺寸，应与晶圆尺寸及掩模版尺寸相匹配。<br/>" +
       "b. 圆形（Round）曝光适合大多数圆形晶圆，光斑为圆形；方形（Squared）曝光适合方形基片或需整片曝光的大面积图形，光斑为方形。<br/>" +
-      "c. 不同机型支持的曝光范围不同：MJB4 支持 4″，MA/BA6 Gen4 支持 6″，MA/BA8 Gen4 支持 8″，MA12 Gen3 支持 12″。",
+      "c. 不同机型支持的曝光范围不同：MA/BA6 Gen4 支持 6″，MA/BA8 Gen4 支持 8″，MA12 Gen3 支持 12″。",
     "sec.alignment.title": "对准方式",
     "sec.alignment.notes":
       "a. 共有三种对准方式：TSA 正面、BSA 背面、IR 红外。<br/>" +
@@ -287,11 +266,8 @@ const I18N = {
       "c. 标准 5 倍与 10 倍物镜最小间隙 29 mm；需靠得更近可选 11.25X Offset（8 mm）或 7.2X Offset（13 mm）。",
     "sec.light_source.title": "紫外光源",
     "sec.light_source.notes":
-      "a. LED 灯非曝光时关闭，约 5000 h 后光强衰减至 70%，期望寿命 20000 h。<br/>" +
-      "b. 高压汞灯非曝光时也需开启，开机寿命约 600 h。<br/>" +
-      "c. LED 将取代汞灯成为主流，SUSS 提供汞灯转 LED 技术支持。",
-    "sec.uv_spectrum.title": "高压汞灯紫外波长范围",
-    "sec.filter.title": "滤镜",
+      "a. 采用 LED 光源，非曝光时关闭，约 5000 h 后光强衰减至 70%，期望寿命 20000 h。<br/>" +
+      "b. LED 无需预热，光强稳定，维护成本低。",
     "sec.exposure_mode.title": "曝光能量控制",
     "sec.exposure_mode.notes":
       "CPC 即恒定功率模式，通过曝光时间控制曝光量；CDC 即恒定剂量模式，可直接输入剂量，使用更方便。CDC 包含 CPC 功能。建议研发单位仅配置 CPC 模式。" +
@@ -306,7 +282,6 @@ const I18N = {
     "sec.maskholder.title": "掩模版架",
     "sec.bond_alignment.title": "键合对准",
 
-    "opt.exposure_area.4round": "4英寸圆形",
     "opt.exposure_area.6round": "6英寸圆形",
     "opt.exposure_area.6sq": "6英寸方形",
     "opt.exposure_area.8round": "8英寸圆形",
@@ -327,19 +302,6 @@ const I18N = {
     "opt.tsa_objective.7_2x": "7.2X Offset 标准物镜",
 
     "opt.light_source.led": "LED",
-    "opt.light_source.hg": "HG 高压汞灯",
-
-    "opt.uv_spectrum.uv400": "UV400",
-    "opt.uv_spectrum.uv400_uv300": "UV400 + UV300",
-
-    "opt.filter.i_line": "i-Line Filter",
-    "opt.filter.g_line": "g-Line Filter",
-    "opt.filter.h_line": "h-Line Filter",
-    "opt.filter.gh_line": "gh-Line Filter",
-    "opt.filter.t25": "25% Transmission Filter",
-    "opt.filter.t33": "33% Transmission Filter",
-    "opt.filter.t50": "50% Transmission Filter",
-    "opt.filter.t70": "70% Transmission Filter",
 
     "opt.exposure_mode.cpc": "CPC 通过曝光时间控制",
     "opt.exposure_mode.cdc": "CDC 直接控制曝光剂量",
@@ -435,9 +397,9 @@ const I18N = {
   },
 
   de: {
-    "app.title": "SUSS Masken- & Bond-Ausrichter Konfigurator · MJB4 / MA6 / MA8 / MA12",
+    "app.title": "SUSS Masken- & Bond-Ausrichter Konfigurator · MA6 / MA8 / MA12",
     "brand.title": "Masken- & Bond-Ausrichter Konfigurator",
-    "brand.subtitle": "MJB4 · MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3",
+    "brand.subtitle": "MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3",
     "field.customer": "Kunde",
     "field.owner": "Verantwortlich",
     "field.date": "Datum",
@@ -470,8 +432,6 @@ const I18N = {
     "model.wafer": "Wafer",
     "auto.manual": "Manuell",
     "auto.semi": "Halbautomatisch",
-    "model.mjb4.kind": "Maskenausrichter",
-    "model.mjb4.tag": "Manuell",
     "model.maba6.kind": "Masken- & Bond-Ausrichter",
     "model.maba6.tag": "Standard · Halbautom.",
     "model.maba8.kind": "Masken- & Bond-Ausrichter",
@@ -483,7 +443,7 @@ const I18N = {
     "sec.exposure_area.notes":
       "a. Der Belichtungsbereich ist die Fläche, die eine einzelne Belichtung auf dem Wafer abdeckt, und sollte zu Wafer- und Maskengröße passen.<br/>" +
       "b. Runde Belichtung eignet sich für die meisten runden Wafer, quadratische für quadratische Substrate oder großflächige Vollfeld-Belichtung.<br/>" +
-      "c. Der unterstützte Bereich hängt vom Modell ab: MJB4 4″, MA/BA6 Gen4 6″, MA/BA8 Gen4 8″, MA12 Gen3 12″.",
+      "c. Der unterstützte Bereich hängt vom Modell ab: MA/BA6 Gen4 6″, MA/BA8 Gen4 8″, MA12 Gen3 12″.",
     "sec.alignment.title": "Ausrichtungsart",
     "sec.alignment.notes":
       "a. Es gibt drei Arten: TSA (Vorderseite), BSA (Rückseite) und IR (Infrarot).<br/>" +
@@ -497,10 +457,7 @@ const I18N = {
     "sec.light_source.title": "UV-Lichtquelle",
     "sec.light_source.notes":
       "a. Die LED ist außerhalb der Belichtung aus; die Intensität sinkt nach ca. 5000 h auf 70 %, Lebensdauer ca. 20000 h.<br/>" +
-      "b. Die Quecksilberdampflampe muss auch außerhalb der Belichtung brennen; Lebensdauer ca. 600 h.<br/>" +
-      "c. LED ersetzt zunehmend die Quecksilberlampe; SUSS bietet Umrüstung an.",
-    "sec.uv_spectrum.title": "UV-Spektrum (Quecksilberlampe)",
-    "sec.filter.title": "Filter",
+      "b. LED benötigt keine Aufwärmzeit, liefert stabile Intensität und ist wartungsarm.",
     "sec.exposure_mode.title": "Belichtungsdosis-Steuerung",
     "sec.exposure_mode.notes":
       "CPC ist der Konstantleistungsmodus, die Dosis wird über die Belichtungszeit gesteuert; CDC ist der Konstanzdosis-Modus, bei dem die Dosis direkt eingegeben wird. CDC enthält CPC. Für F&amp;E-Einheiten empfehlen wir nur CPC." +
@@ -515,7 +472,6 @@ const I18N = {
     "sec.maskholder.title": "Maskenhalter",
     "sec.bond_alignment.title": "Bond-Ausrichtung",
 
-    "opt.exposure_area.4round": "4″ rund",
     "opt.exposure_area.6round": "6″ rund",
     "opt.exposure_area.6sq": "6″ quadratisch",
     "opt.exposure_area.8round": "8″ rund",
@@ -536,19 +492,6 @@ const I18N = {
     "opt.tsa_objective.7_2x": "7.2X Offset",
 
     "opt.light_source.led": "LED",
-    "opt.light_source.hg": "HG Quecksilberdampflampe",
-
-    "opt.uv_spectrum.uv400": "UV400",
-    "opt.uv_spectrum.uv400_uv300": "UV400 + UV300",
-
-    "opt.filter.i_line": "i-Line Filter",
-    "opt.filter.g_line": "g-Line Filter",
-    "opt.filter.h_line": "h-Line Filter",
-    "opt.filter.gh_line": "gh-Line Filter",
-    "opt.filter.t25": "25 % Transmissionsfilter",
-    "opt.filter.t33": "33 % Transmissionsfilter",
-    "opt.filter.t50": "50 % Transmissionsfilter",
-    "opt.filter.t70": "70 % Transmissionsfilter",
 
     "opt.exposure_mode.cpc": "CPC — Konstantleistung (Belichtungszeit)",
     "opt.exposure_mode.cdc": "CDC — Konstanzdosis (Dosis direkt)",
@@ -644,9 +587,9 @@ const I18N = {
   },
 
   ja: {
-    "app.title": "SUSS マスク／ボンドアライナ コンフィギュレータ · MJB4 / MA6 / MA8 / MA12",
+    "app.title": "SUSS マスク／ボンドアライナ コンフィギュレータ · MA6 / MA8 / MA12",
     "brand.title": "マスク／ボンドアライナ コンフィギュレータ",
-    "brand.subtitle": "MJB4 · MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3",
+    "brand.subtitle": "MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3",
     "field.customer": "顧客名",
     "field.owner": "担当者",
     "field.date": "日付",
@@ -679,8 +622,6 @@ const I18N = {
     "model.wafer": "ウェハ",
     "auto.manual": "手動",
     "auto.semi": "半自動",
-    "model.mjb4.kind": "マスクアライナ",
-    "model.mjb4.tag": "手動",
     "model.maba6.kind": "マスク／ボンドアライナ",
     "model.maba6.tag": "標準 · 半自動",
     "model.maba8.kind": "マスク／ボンドアライナ",
@@ -692,7 +633,7 @@ const I18N = {
     "sec.exposure_area.notes":
       "a. 露光範囲とは 1 回の露光でカバーできるウェハ領域のサイズで、ウェハサイズとマスクサイズに合わせる必要があります。<br/>" +
       "b. 円形露光はほとんどの円形ウェハに適し、方形露光は方形基板や大面積パターンの全面露光に適しています。<br/>" +
-      "c. 対応範囲は機種ごとに異なります：MJB4 は 4″、MA/BA6 Gen4 は 6″、MA/BA8 Gen4 は 8″、MA12 Gen3 は 12″。",
+      "c. 対応範囲は機種ごとに異なります：MA/BA6 Gen4 は 6″、MA/BA8 Gen4 は 8″、MA12 Gen3 は 12″。",
     "sec.alignment.title": "アライメント方式",
     "sec.alignment.notes":
       "a. アライメント方式は TSA（表面）、BSA（裏面）、IR（赤外）の 3 種類です。<br/>" +
@@ -706,10 +647,7 @@ const I18N = {
     "sec.light_source.title": "UV 光源",
     "sec.light_source.notes":
       "a. LED は非露光時に消灯し、約 5000 h で光量が 70% まで低下、期待寿命は 20000 h です。<br/>" +
-      "b. 高圧水銀ランプは非露光時も点灯が必要で、寿命は約 600 h です。<br/>" +
-      "c. LED が水銀ランプに代わる主流となり、SUSS は水銀ランプから LED への変換をサポートします。",
-    "sec.uv_spectrum.title": "UV スペクトル（水銀ランプ）",
-    "sec.filter.title": "フィルター",
+      "b. LED はウォームアップ不要で光量が安定し、メンテナンスコストも低減できます。",
     "sec.exposure_mode.title": "露光量制御モード",
     "sec.exposure_mode.notes":
       "CPC は定電力モードで、露光時間によって露光量を制御します。CDC は定露光量モードで、線量を直接入力でき操作性に優れます。CDC は CPC の機能を含みます。研究開発用途では CPC のみの構成を推奨します。" +
@@ -724,7 +662,6 @@ const I18N = {
     "sec.maskholder.title": "マスクホルダー",
     "sec.bond_alignment.title": "ボンドアライメント",
 
-    "opt.exposure_area.4round": "4インチ円形",
     "opt.exposure_area.6round": "6インチ円形",
     "opt.exposure_area.6sq": "6インチ方形",
     "opt.exposure_area.8round": "8インチ円形",
@@ -745,19 +682,6 @@ const I18N = {
     "opt.tsa_objective.7_2x": "7.2X オフセット",
 
     "opt.light_source.led": "LED",
-    "opt.light_source.hg": "HG 高圧水銀ランプ",
-
-    "opt.uv_spectrum.uv400": "UV400",
-    "opt.uv_spectrum.uv400_uv300": "UV400 + UV300",
-
-    "opt.filter.i_line": "i-Line フィルター",
-    "opt.filter.g_line": "g-Line フィルター",
-    "opt.filter.h_line": "h-Line フィルター",
-    "opt.filter.gh_line": "gh-Line フィルター",
-    "opt.filter.t25": "25% 透過フィルター",
-    "opt.filter.t33": "33% 透過フィルター",
-    "opt.filter.t50": "50% 透過フィルター",
-    "opt.filter.t70": "70% 透過フィルター",
 
     "opt.exposure_mode.cpc": "CPC — 定電力モード（露光時間制御）",
     "opt.exposure_mode.cdc": "CDC — 定露光量モード（線量直接入力）",
@@ -853,9 +777,9 @@ const I18N = {
   },
 
   ko: {
-    "app.title": "SUSS 마스크／본드 정렬기 구성 도구 · MJB4 / MA6 / MA8 / MA12",
+    "app.title": "SUSS 마스크／본드 정렬기 구성 도구 · MA6 / MA8 / MA12",
     "brand.title": "마스크／본드 정렬기 구성 도구",
-    "brand.subtitle": "MJB4 · MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3",
+    "brand.subtitle": "MA/BA6 Gen4 · MA/BA8 Gen4 · MA12 Gen3",
     "field.customer": "고객명",
     "field.owner": "담당자",
     "field.date": "날짜",
@@ -888,8 +812,6 @@ const I18N = {
     "model.wafer": "웨이퍼",
     "auto.manual": "수동",
     "auto.semi": "반자동",
-    "model.mjb4.kind": "마스크 정렬기",
-    "model.mjb4.tag": "수동",
     "model.maba6.kind": "마스크／본드 정렬기",
     "model.maba6.tag": "표준 · 반자동",
     "model.maba8.kind": "마스크／본드 정렬기",
@@ -901,7 +823,7 @@ const I18N = {
     "sec.exposure_area.notes":
       "a. 노광 범위는 1회 노광으로 커버되는 웨이퍼 영역 크기이며, 웨이퍼와 마스크 크기에 맞춰야 합니다.<br/>" +
       "b. 원형 노광은 대부분의 원형 웨이퍼에 적합하고, 사각형 노광은 사각 기판이나 대면적 패턴의 전면 노광에 적합합니다.<br/>" +
-      "c. 지원 범위는 모델별로 다릅니다: MJB4 4″, MA/BA6 Gen4 6″, MA/BA8 Gen4 8″, MA12 Gen3 12″.",
+      "c. 지원 범위는 모델별로 다릅니다: MA/BA6 Gen4 6″, MA/BA8 Gen4 8″, MA12 Gen3 12″.",
     "sec.alignment.title": "정렬 방식",
     "sec.alignment.notes":
       "a. 정렬 방식은 TSA(전면), BSA(후면), IR(적외선) 세 가지입니다.<br/>" +
@@ -915,10 +837,7 @@ const I18N = {
     "sec.light_source.title": "UV 광원",
     "sec.light_source.notes":
       "a. LED는 비노광 시 꺼지며 약 5000 h 후 광량이 70%로 감소하고 기대 수명은 20000 h입니다.<br/>" +
-      "b. 고압 수은등은 비노광 시에도 켜 두어야 하며 수명은 약 600 h입니다.<br/>" +
-      "c. LED가 수은등을 대체하는 주류가 되고 있으며 SUSS는 수은등→LED 전환을 지원합니다.",
-    "sec.uv_spectrum.title": "UV 스펙트럼(수은등)",
-    "sec.filter.title": "필터",
+      "b. LED는 예열이 필요 없고 광량이 안정적이며 유지비가 낮습니다.",
     "sec.exposure_mode.title": "노광량 제어 모드",
     "sec.exposure_mode.notes":
       "CPC는 정전력 모드로 노광 시간으로 노광량을 제어하고, CDC는 정량 모드로 선량을 직접 입력해 사용이 편리합니다. CDC는 CPC 기능을 포함합니다. 연구개발 기관에는 CPC만 구성하는 것을 권장합니다." +
@@ -933,7 +852,6 @@ const I18N = {
     "sec.maskholder.title": "마스크 홀더",
     "sec.bond_alignment.title": "본드 정렬",
 
-    "opt.exposure_area.4round": "4인치 원형",
     "opt.exposure_area.6round": "6인치 원형",
     "opt.exposure_area.6sq": "6인치 사각형",
     "opt.exposure_area.8round": "8인치 원형",
@@ -954,19 +872,6 @@ const I18N = {
     "opt.tsa_objective.7_2x": "7.2X 오프셋",
 
     "opt.light_source.led": "LED",
-    "opt.light_source.hg": "HG 고압 수은등",
-
-    "opt.uv_spectrum.uv400": "UV400",
-    "opt.uv_spectrum.uv400_uv300": "UV400 + UV300",
-
-    "opt.filter.i_line": "i-Line 필터",
-    "opt.filter.g_line": "g-Line 필터",
-    "opt.filter.h_line": "h-Line 필터",
-    "opt.filter.gh_line": "gh-Line 필터",
-    "opt.filter.t25": "25% 투과 필터",
-    "opt.filter.t33": "33% 투과 필터",
-    "opt.filter.t50": "50% 투과 필터",
-    "opt.filter.t70": "70% 투과 필터",
 
     "opt.exposure_mode.cpc": "CPC — 정전력 모드(노광 시간 제어)",
     "opt.exposure_mode.cdc": "CDC — 정량 모드(선량 직접 입력)",
