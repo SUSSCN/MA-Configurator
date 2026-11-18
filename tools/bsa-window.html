@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chuck BSA Windows Designer</title>
+<style>
+  :root {
+    --brand: #003F30;
+    --brand-dark: #002b21;
+    --accent: #87F06E;
+    --bg: #f4f6f9;
+    --panel: #ffffff;
+    --line: #e3e8ee;
+    --muted: #5b6b7c;
+    --ink: #1c2733;
+    --danger: #c0392b;
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(16,24,40,.05), 0 4px 16px rgba(16,24,40,.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 16px;
+    min-height: 100vh;
+  }
+  .app-container {
+    display: flex;
+    gap: 16px;
+    max-width: 1440px;
+    margin: 0 auto;
+    height: calc(100vh - 32px);
+  }
+
+  /* ---------- 左侧控制面板 ---------- */
+  .control-panel {
+    flex: 0 0 340px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--brand);
+    text-decoration: none;
+    padding: 4px 8px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+  }
+  .back-link:hover { background: #e7f7ea; }
+  .title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--brand);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    border-bottom: 3px solid var(--accent);
+  }
+  .section {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    transition: border-color .2s;
+  }
+  .section:hover { border-color: #b8d9c3; }
+  .section-title {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--brand);
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eef2f6;
+  }
+  .form-group { margin-bottom: 10px; }
+  .form-group:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  select, input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #cfd8e3;
+    border-radius: 6px;
+    font-size: 13px;
+    background: #fff;
+    color: var(--ink);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(0,63,48,.1);
+  }
+  .checkbox-group { display: flex; align-items: center; margin-bottom: 8px; }
+  .checkbox-group:last-child { margin-bottom: 0; }
+  .checkbox-group input[type="checkbox"] {
+    width: 16px; height: 16px; margin-right: 8px; accent-color: var(--brand);
+  }
+  .checkbox-group label { margin: 0; color: var(--ink); font-size: 13px; }
+
+  .btn {
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .btn-primary { background: var(--brand); color: #fff; }
+  .btn-primary:hover { background: var(--brand-dark); }
+  .btn-success { background: var(--accent); color: var(--brand-dark); }
+  .btn-success:hover { background: #6fd95a; }
+  .btn-outline { background: #fff; border-color: var(--line); color: var(--ink); }
+  .btn-outline:hover { background: #f0f7f2; border-color: #c2dcc8; }
+  .btn-block { width: 100%; }
+  .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+  .btn-row .btn { flex: 1; }
+  .color-buttons { display: flex; flex-direction: column; gap: 8px; }
+
+  /* ---------- 右侧绘图区 ---------- */
+  .drawing-area { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .canvas-container {
+    flex: 1;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow);
+  }
+  #drawingCanvas { display: block; background: #fff; cursor: grab; }
+  .status-bar {
+    background: var(--brand);
+    color: var(--accent);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .status-bar.invalid { background: var(--danger); color: #fff; }
+
+  @media (max-width: 1100px) {
+    body { padding: 10px; }
+    .app-container { flex-direction: column; height: auto; }
+    .control-panel { flex: none; max-height: none; }
+    .drawing-area { height: 70vh; }
+  }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <div class="control-panel">
+    <a class="back-link" href="../index.html">← Back to Configurator</a>
+    <h1 class="title">Chuck BSA Windows Designer</h1>
+
+    <div class="section">
+      <div class="section-title">Wafer Configuration</div>
+      <div class="form-group">
+        <label for="waferType">Wafer Type</label>
+        <select id="waferType">
+          <option value="circle">Circle</option>
+          <option value="square">Square</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="waferSize">Diameter / Side (mm)</label>
+        <input type="number" id="waferSize" min="10" max="500" step="1" value="200" />
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Observation Windows</div>
+      <div class="form-group">
+        <label for="distanceType">Distance Type</label>
+        <select id="distanceType">
+          <option value="center">Center distance</option>
+          <option value="inner">Inner edge distance</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="windowDistance">Window Distance (mm)</label>
+        <input type="number" id="windowDistance" min="0" max="300" step="1" value="50" />
+      </div>
+      <div class="form-group">
+        <label for="windowWidth">Window Width (mm)</label>
+        <input type="number" id="windowWidth" min="1" max="200" step="1" value="20" />
+      </div>
+      <div class="form-group">
+        <label for="windowHeight">Window Height (mm)</label>
+        <input type="number" id="windowHeight" min="1" max="200" step="1" value="30" />
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Grid Configuration</div>
+      <div class="form-group">
+        <label for="gridSpacing">Grid Spacing</label>
+        <select id="gridSpacing">
+          <option value="5">5 mm</option>
+          <option value="10">10 mm</option>
+          <option value="15">15 mm</option>
+          <option value="20">20 mm</option>
+          <option value="25" selected>25 mm</option>
+          <option value="30">30 mm</option>
+          <option value="50">50 mm</option>
+          <option value="100">100 mm</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Display Options</div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showGrid" checked />
+        <label for="showGrid">Show Grid</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showDimensions" checked />
+        <label for="showDimensions">Show Dimensions</label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Color Settings</div>
+      <div class="color-buttons">
+        <button class="btn btn-outline" onclick="selectWaferColor()">Select Wafer Color</button>
+        <button class="btn btn-outline" onclick="selectWindowColor()">Select Window Color</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Export</div>
+      <div class="form-group">
+        <label for="pnNumber">PN#</label>
+        <input type="text" id="pnNumber" placeholder="Enter Part Number" />
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="showStatus()">Status</button>
+        <button class="btn btn-success" onclick="downloadPNG()">Download PNG</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawing-area">
+    <div class="canvas-container">
+      <canvas id="drawingCanvas"></canvas>
+    </div>
+    <div class="status-bar" id="statusBar">Ready to design…</div>
+  </div>
+</div>
+
+<input type="color" id="colorPicker" style="display:none" />
+
+<script>
+  let canvas, ctx;
+  const params = {
+    waferType: 'circle',
+    waferSize: 200,
+    distanceType: 'center',
+    windowDistance: 50,
+    windowWidth: 20,
+    windowHeight: 30,
+    showGrid: true,
+    showDimensions: true,
+    gridSpacing: 25,
+    waferColor: '#003F30',
+    windowColor: '#86EF6EB6',
+    windowBorderColor: '#003F30',
+    scale: 1.0,
+    panOffset: { x: 0, y: 0 },
+    pnNumber: ''
+  };
+
+  window.onload = function () {
+    canvas = document.getElementById('drawingCanvas');
+    ctx = canvas.getContext('2d');
+
+    document.getElementById('waferType').value = params.waferType;
+    document.getElementById('waferSize').value = params.waferSize;
+    document.getElementById('distanceType').value = params.distanceType;
+    document.getElementById('windowDistance').value = params.windowDistance;
+    document.getElementById('windowWidth').value = params.windowWidth;
+    document.getElementById('windowHeight').value = params.windowHeight;
+    document.getElementById('gridSpacing').value = params.gridSpacing;
+    document.getElementById('showGrid').checked = params.showGrid;
+    document.getElementById('showDimensions').checked = params.showDimensions;
+
+    setupEventListeners();
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    updateDrawing();
+  };
+
+  function setupEventListeners() {
+    ['waferType', 'waferSize', 'distanceType', 'windowDistance', 'windowWidth',
+     'windowHeight', 'gridSpacing', 'showGrid', 'showDimensions'].forEach(function (id) {
+      document.getElementById(id).addEventListener('input', updateDrawing);
+      document.getElementById(id).addEventListener('change', updateDrawing);
+    });
+    document.getElementById('pnNumber').addEventListener('input', function () {
+      params.pnNumber = this.value.trim();
+      updateDrawing();
+    });
+
+    let isDragging = false, lastX = 0, lastY = 0;
+    canvas.addEventListener('mousedown', function (e) {
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      canvas.style.cursor = 'grabbing';
+    });
+    canvas.addEventListener('mousemove', function (e) {
+      if (!isDragging) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      params.panOffset.x += dx / params.scale;
+      params.panOffset.y += dy / params.scale;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      updateDrawing();
+    });
+    ['mouseup', 'mouseleave'].forEach(function (evt) {
+      canvas.addEventListener(evt, function () {
+        isDragging = false;
+        canvas.style.cursor = 'grab';
+      });
+    });
+    canvas.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      params.scale *= e.deltaY < 0 ? 1.1 : 0.9;
+      params.scale = Math.max(0.1, Math.min(5, params.scale));
+      updateDrawing();
+    }, { passive: false });
+  }
+
+  function resizeCanvas() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = Math.max(320, rect.width);
+    canvas.height = Math.max(280, rect.height);
+    updateDrawing();
+  }
+
+  function updateDrawing() {
+    params.waferType = document.getElementById('waferType').value;
+    params.waferSize = parseFloat(document.getElementById('waferSize').value) || 200;
+    params.distanceType = document.getElementById('distanceType').value;
+    params.windowDistance = parseFloat(document.getElementById('windowDistance').value) || 0;
+    params.windowWidth = parseFloat(document.getElementById('windowWidth').value) || 1;
+    params.windowHeight = parseFloat(document.getElementById('windowHeight').value) || 1;
+    params.gridSpacing = parseInt(document.getElementById('gridSpacing').value, 10);
+    params.showGrid = document.getElementById('showGrid').checked;
+    params.showDimensions = document.getElementById('showDimensions').checked;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const availableSize = Math.min(canvas.width, canvas.height) * 0.65;
+    const scale = availableSize / params.waferSize * params.scale;
+    const centerX = canvas.width / 2 + params.panOffset.x * scale;
+    const centerY = canvas.height / 2 + params.panOffset.y * scale;
+
+    if (params.showGrid) drawGrid(centerX, centerY, scale);
+
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.scale(scale, scale);
+    drawWafer();
+    drawWindows();
+    if (params.showDimensions) drawDimensions();
+    ctx.restore();
+
+    drawTitle();
+    if (params.pnNumber) drawPNNumber();
+    updateStatusBar();
+  }
+
+  function drawGrid(centerX, centerY, scale) {
+    ctx.save();
+    ctx.strokeStyle = '#ecf0f1';
+    ctx.lineWidth = 0.8;
+    ctx.setLineDash([2, 2]);
+    const spacing = params.gridSpacing;
+    const numLines = Math.ceil(params.waferSize / 2 / spacing) + 2;
+    for (let i = -numLines; i <= numLines; i++) {
+      const x = centerX + i * spacing * scale;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      const y = centerY + i * spacing * scale;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawWafer() {
+    const halfSize = params.waferSize / 2;
+    ctx.strokeStyle = params.waferColor;
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    if (params.waferType === 'circle') {
+      const notchRadius = halfSize * 0.04;
+      const notchHalfAngle = Math.asin(Math.min(1, notchRadius / halfSize));
+      const start = Math.PI / 2 + notchHalfAngle;
+      const end = Math.PI / 2 - notchHalfAngle + Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, halfSize, start, end, false);
+      ctx.stroke();
+
+      // 凹槽圆弧（位于底部，向内凹）
+      ctx.beginPath();
+      ctx.arc(0, halfSize - notchRadius, notchRadius, Math.PI, 0, false);
+      ctx.stroke();
+    } else {
+      const cutSize = halfSize * 0.1;
+      ctx.beginPath();
+      ctx.moveTo(-halfSize + cutSize, -halfSize);
+      ctx.lineTo(halfSize, -halfSize);
+      ctx.lineTo(halfSize, halfSize);
+      ctx.lineTo(-halfSize, halfSize);
+      ctx.lineTo(-halfSize, -halfSize + cutSize);
+      ctx.closePath();
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = '#95a5a6';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3, 9, 3]);
+    ctx.beginPath(); ctx.moveTo(-halfSize - 6, 0); ctx.lineTo(halfSize + 6, 0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, -halfSize - 6); ctx.lineTo(0, halfSize + 6); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function windowPositions() {
+    let leftWindowX, rightWindowX;
+    if (params.distanceType === 'center') {
+      const c = params.windowDistance / 2;
+      leftWindowX = -c - params.windowWidth / 2;
+      rightWindowX = c - params.windowWidth / 2;
+    } else {
+      leftWindowX = -params.windowDistance / 2 - params.windowWidth;
+      rightWindowX = params.windowDistance / 2;
+    }
+    return { leftWindowX: leftWindowX, rightWindowX: rightWindowX, windowY: -params.windowHeight / 2 };
+  }
+
+  function drawWindows() {
+    const p = windowPositions();
+
+    ctx.fillStyle = params.windowColor;
+    ctx.fillRect(p.leftWindowX, p.windowY, params.windowWidth, params.windowHeight);
+    ctx.fillRect(p.rightWindowX, p.windowY, params.windowWidth, params.windowHeight);
+
+    ctx.strokeStyle = params.windowBorderColor;
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(p.leftWindowX, p.windowY, params.windowWidth, params.windowHeight);
+    ctx.strokeRect(p.rightWindowX, p.windowY, params.windowWidth, params.windowHeight);
+
+    ctx.fillStyle = params.waferColor;
+    ctx.font = 'bold 9px "Segoe UI"';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('L', p.leftWindowX + params.windowWidth / 2, p.windowY + params.windowHeight / 2);
+    ctx.fillText('R', p.rightWindowX + params.windowWidth / 2, p.windowY + params.windowHeight / 2);
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  function drawDimensions() {
+    const p = windowPositions();
+    const halfSize = params.waferSize / 2;
+
+    ctx.save();
+    ctx.strokeStyle = '#7f8c8d';
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([2, 2]);
+
+    // 晶圆尺寸
+    ctx.strokeStyle = params.waferColor;
+    if (params.waferType === 'circle') {
+      ctx.beginPath(); ctx.moveTo(-halfSize, halfSize + 8); ctx.lineTo(halfSize, halfSize + 8); ctx.stroke();
+      drawDimTick(-halfSize, halfSize + 8, false, true);
+      drawDimTick(halfSize, halfSize + 8, false, true);
+      ctx.font = '8px "Segoe UI"';
+      ctx.fillStyle = params.waferColor;
+      ctx.textAlign = 'center';
+      ctx.fillText('Ø' + params.waferSize.toFixed(1) + 'mm', 0, halfSize + 18);
+    } else {
+      ctx.font = '8px "Segoe UI"';
+      ctx.fillStyle = params.waferColor;
+      ctx.textAlign = 'center';
+      ctx.fillText(params.waferSize.toFixed(1) + 'mm', 0, halfSize + 15);
+    }
+
+    // 窗口间距
+    ctx.strokeStyle = '#7f8c8d';
+    ctx.setLineDash([2, 2]);
+    const offset = 5;
+    if (params.distanceType === 'center') {
+      const startX = -params.windowDistance / 2;
+      const endX = params.windowDistance / 2;
+      ctx.beginPath(); ctx.moveTo(startX, p.windowY - offset); ctx.lineTo(endX, p.windowY - offset); ctx.stroke();
+      drawDimTick(startX, p.windowY - offset, false, true);
+      drawDimTick(endX, p.windowY - offset, false, true);
+      ctx.font = '7px "Segoe UI"';
+      ctx.fillStyle = params.waferColor;
+      ctx.textAlign = 'center';
+      ctx.fillText(params.windowDistance.toFixed(1) + 'mm', 0, p.windowY - offset - 8);
+    } else {
+      const startX = p.leftWindowX + params.windowWidth;
+      const endX = p.rightWindowX;
+      ctx.beginPath(); ctx.moveTo(startX, p.windowY - offset); ctx.lineTo(endX, p.windowY - offset); ctx.stroke();
+      drawDimTick(startX, p.windowY - offset, false, true);
+      drawDimTick(endX, p.windowY - offset, false, true);
+      ctx.font = '7px "Segoe UI"';
+      ctx.fillStyle = params.waferColor;
+      ctx.textAlign = 'center';
+      ctx.fillText(params.windowDistance.toFixed(1) + 'mm', (startX + endX) / 2, p.windowY - offset - 8);
+    }
+
+    // 窗口宽度
+    const widthOffset = p.windowY + params.windowHeight + 5;
+    ctx.beginPath();
+    ctx.moveTo(p.leftWindowX, widthOffset);
+    ctx.lineTo(p.leftWindowX + params.windowWidth, widthOffset);
+    ctx.stroke();
+    drawDimTick(p.leftWindowX, widthOffset, false, true);
+    drawDimTick(p.leftWindowX + params.windowWidth, widthOffset, false, true);
+    ctx.font = '7px "Segoe UI"';
+    ctx.fillStyle = params.waferColor;
+    ctx.textAlign = 'center';
+    ctx.fillText(params.windowWidth.toFixed(1) + 'mm',
+      p.leftWindowX + params.windowWidth / 2, widthOffset + 10);
+
+    // 窗口高度
+    const lineX = p.rightWindowX + params.windowWidth + 5;
+    ctx.beginPath();
+    ctx.moveTo(lineX, p.windowY);
+    ctx.lineTo(lineX, p.windowY + params.windowHeight);
+    ctx.stroke();
+    drawDimTick(lineX, p.windowY, true, true);
+    drawDimTick(lineX, p.windowY + params.windowHeight, true, true);
+    ctx.save();
+    ctx.font = '7px "Segoe UI"';
+    ctx.fillStyle = params.waferColor;
+    ctx.textAlign = 'center';
+    ctx.translate(lineX + 10, p.windowY + params.windowHeight / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(params.windowHeight.toFixed(1) + 'mm', 0, 0);
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  function drawDimTick(x, y, horizontal, vertical) {
+    ctx.beginPath();
+    if (vertical) { ctx.moveTo(x, y - 1); ctx.lineTo(x, y + 1); }
+    if (horizontal) { ctx.moveTo(x - 1, y); ctx.lineTo(x + 1, y); }
+    if (!horizontal && !vertical) { ctx.moveTo(x - 1, y); ctx.lineTo(x + 1, y); }
+    ctx.stroke();
+  }
+
+  function drawTitle() {
+    const text = 'Wafer Backside Observation Windows — ' +
+      params.waferType.charAt(0).toUpperCase() + params.waferType.slice(1) + ' Wafer';
+    ctx.font = 'bold 16px "Segoe UI"';
+    const w = ctx.measureText(text).width;
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    roundRect(ctx, 12, 10, w + 20, 30, 5);
+    ctx.fill();
+    ctx.fillStyle = params.waferColor;
+    ctx.textAlign = 'left';
+    ctx.fillText(text, 22, 31);
+    ctx.strokeStyle = params.windowColor;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(22, 36);
+    ctx.lineTo(22 + w, 36);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPNNumber() {
+    const text = 'PN#: ' + params.pnNumber;
+    ctx.font = 'bold 14px "Segoe UI"';
+    const textWidth = ctx.measureText(text).width;
+    const padding = 10;
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    roundRect(ctx, canvas.width - textWidth - padding * 2 - 10,
+      canvas.height - 40, textWidth + padding * 2, 30, 5);
+    ctx.fill();
+    ctx.fillStyle = params.waferColor;
+    ctx.textAlign = 'left';
+    ctx.fillText(text, canvas.width - textWidth - padding - 10, canvas.height - 20);
+  }
+
+  function checkWindowBoundaries() {
+    const p = windowPositions();
+    const halfSize = params.waferSize / 2;
+    const bottom = p.windowY + params.windowHeight;
+    const right = p.leftWindowX + params.windowWidth;
+    const rightRight = p.rightWindowX + params.windowWidth;
+
+    if (params.waferType === 'circle') {
+      const pts = [
+        [p.leftWindowX, p.windowY], [right, p.windowY],
+        [p.leftWindowX, bottom], [right, bottom],
+        [p.rightWindowX, p.windowY], [rightRight, p.windowY],
+        [p.rightWindowX, bottom], [rightRight, bottom]
+      ];
+      for (let i = 0; i < pts.length; i++) {
+        if (Math.sqrt(pts[i][0] * pts[i][0] + pts[i][1] * pts[i][1]) > halfSize) return false;
+      }
+    } else if (p.leftWindowX < -halfSize || right > halfSize ||
+               p.windowY < -halfSize || bottom > halfSize ||
+               p.rightWindowX < -halfSize || rightRight > halfSize) {
+      return false;
+    }
+    return true;
+  }
+
+  function updateStatusBar() {
+    const ok = checkWindowBoundaries();
+    const el = document.getElementById('statusBar');
+    el.classList.toggle('invalid', !ok);
+    const waferInfo = 'Wafer: ' + params.waferType + ' ' + params.waferSize.toFixed(1) + 'mm';
+    const windowInfo = 'Windows: ' + params.windowWidth.toFixed(1) + '×' + params.windowHeight.toFixed(1) + 'mm';
+    const distanceInfo = 'Distance: ' + params.windowDistance.toFixed(1) + 'mm (' + params.distanceType + ')';
+    const pnInfo = params.pnNumber ? ' | PN#: ' + params.pnNumber : '';
+    const warn = ok ? '✓ ' : '⚠ Windows exceed the wafer boundary | ';
+    el.textContent = warn + waferInfo + ' | ' + windowInfo + ' | ' + distanceInfo + pnInfo;
+  }
+
+  function showStatus() {
+    const ok = checkWindowBoundaries();
+    const lines = [
+      'Current Design Status:',
+      '',
+      'Wafer: ' + params.waferType + ' ' + params.waferSize.toFixed(1) + 'mm',
+      'Windows: ' + params.windowWidth.toFixed(1) + '×' + params.windowHeight.toFixed(1) + 'mm',
+      'Distance: ' + params.windowDistance.toFixed(1) + 'mm (' + params.distanceType + ')',
+      'Grid: ' + (params.showGrid ? 'Visible' : 'Hidden'),
+      'Dimensions: ' + (params.showDimensions ? 'Visible' : 'Hidden'),
+      'Boundary: ' + (ok ? 'OK' : 'OUT OF WAFER'),
+      params.pnNumber ? 'PN#: ' + params.pnNumber : ''
+    ];
+    alert(lines.join('\n'));
+  }
+
+  function downloadPNG() {
+    const pn = params.pnNumber ? '_' + params.pnNumber.replace(/[^\w.-]+/g, '') : '';
+    const a = document.createElement('a');
+    a.download = 'BSA_Window_' + params.waferType + '_' +
+      String(params.waferSize).replace(/\D/g, '') + 'mm' + pn + '.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  }
+
+  function selectWaferColor() {
+    const picker = document.getElementById('colorPicker');
+    picker.value = params.waferColor;
+    picker.onchange = function (e) {
+      params.waferColor = e.target.value;
+      updateDrawing();
+    };
+    picker.click();
+  }
+
+  function selectWindowColor() {
+    const picker = document.getElementById('colorPicker');
+    picker.value = params.windowColor.slice(0, 7);
+    picker.onchange = function (e) {
+      params.windowColor = e.target.value + 'B6';
+      params.windowBorderColor = e.target.value;
+      updateDrawing();
+    };
+    picker.click();
+  }
+
+  function roundRect(c, x, y, width, height, radius) {
+    if (width < 2 * radius) radius = width / 2;
+    if (height < 2 * radius) radius = height / 2;
+    c.beginPath();
+    c.moveTo(x + radius, y);
+    c.lineTo(x + width - radius, y);
+    c.quadraticCurveTo(x + width, y, x + width, y + radius);
+    c.lineTo(x + width, y + height - radius);
+    c.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    c.lineTo(x + radius, y + height);
+    c.quadraticCurveTo(x, y + height, x, y + height - radius);
+    c.lineTo(x, y + radius);
+    c.quadraticCurveTo(x, y, x + radius, y);
+    c.closePath();
+  }
+</script>
+</body>
+</html>
